@@ -15,15 +15,15 @@ const experiences = [
     ],
   },
   {
-    period: "Aug 2023 - Jul 2024",
-    title: "Software Engineer",
+    period: "Sep 2023 - Jul 2024",
+    title: "Software Development Engineer",
     company: "Bhardwaj Tech IT Solutions Pvt Ltd",
     location: "Gurugram, India",
     bullets: [
-      "Built and shipped backend services for an LMS platform serving 1,000+ users using Java and Spring Boot, implementing course management, student enrollment, and progress tracking APIs",
-      "Designed and deployed RESTful APIs for payment processing modules integrating third-party UPI services, resolving 15+ production issues and ensuring secure, reliable transaction handling",
-      "Improved application stability by 25% through comprehensive unit testing with JUnit, database query optimization, and legacy code refactoring across production services",
-      "Delivered 3+ major releases to production environments with full CI/CD pipelines using GitHub Actions and Maven, collaborating in Agile/Scrum teams across cross-functional projects",
+      "SMC Mutual Fund App: Designed and deployed 10+ RESTful APIs using Java and Spring Boot for fund listings, advanced filters, top/popular funds, single-fund details, and graph data services",
+      "Architected end-to-end Mutual Fund Order Execution System handling 5 transaction types (lumpsum, SIP, SWP, STP, redemption) — covering validation, placement, acknowledgment, and reconciliation for 10K+ users",
+      "Integrated third-party exchange APIs to manage complete order lifecycle including payment status tracking and failure-safe processing across high-volume transactions",
+      "Optimized API performance and implemented production monitoring ensuring high availability and reliability in a live fintech environment",
     ],
   },
 
@@ -33,9 +33,9 @@ const experiences = [
     company: "Bhardwaj Tech IT Solutions Pvt Ltd",
     location: "Gurugram, India",
     bullets: [
-      "Developed and maintained full-stack features across multiple client projects using Node.js, Express.js, and React.js, handling both frontend and backend responsibilities",
-      "Built REST APIs for user authentication, data management, and business logic modules, integrating with MongoDB and MySQL databases",
-      "Revamped frontend components using React.js with lazy loading and code splitting, improving page load performance by 40%",
+      "Engineered CMOTS data ingestion pipeline for 360 ONE Wealth integrating 3+ external APIs with S3 and relational databases, optimized for near real-time data access",
+      "Built authentication and order-flow APIs supporting onboarding and transaction processing across 2 user tiers (UHNI/HNI), and developed 5+ modules including user dashboards and watchlist",
+      "Automated failure monitoring via scheduled cron jobs with MS Teams alerting, reducing manual intervention for production incidents",
     ],
   },
 ];

@@ -7,7 +7,7 @@ const projects = [
   {
     title: "Cloud-Native Auto-Scaling Infrastructure",
     description:
-      "Architected multi-environment cloud infrastructure using Terraform and AWS (VPC, EC2, RDS, ALB, S3, KMS). Reduced deployment time by 85% through automated provisioning with GitHub Actions CI/CD. Achieved 99.9% application availability through fault-tolerant multi-AZ deployment with IAM roles and KMS encryption.",
+      "Architected multi-environment cloud infrastructure using Terraform and AWS (VPC, EC2, RDS, ALB), reducing deployment time by 85% through automated provisioning. Achieved 99.9% application availability through fault-tolerant multi-AZ deployment with IAM roles and KMS encryption.",
     image: "/projects/cloud-infra.png",
     github: "https://github.com/K-sau07/tf-aws-infrastructure",
     tech: ["AWS", "Terraform", "Packer", "GitHub Actions", "VPC", "EC2", "RDS", "KMS"],
@@ -15,7 +15,7 @@ const projects = [
   {
     title: "EcoPlate - Food Waste Reduction",
     description:
-      "Full-stack platform with role-based access control, dynamic pricing engine adjusting food listings based on real-time weather and demand. Implemented JWT authentication, BCrypt password hashing, and Spring Security with sub-1-second API response times for 30+ concurrent users.",
+      "Architected full-stack platform with role-based access control, dynamic pricing engine adjusting food listings based on real-time weather and demand, and interactive maps for live availability tracking. Implemented JWT authentication, BCrypt password hashing, and Spring Security with sub-1-second API response times for 30+ concurrent users.",
     image: "/projects/ecoplate.gif",
     github: "https://github.com/CanNortheastern/CSYE7230Group1",
     tech: ["Spring Boot", "React", "JWT", "MySQL", "Docker"],

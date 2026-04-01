@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 import { ChevronRight, Download } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -8,8 +8,11 @@ import { useTheme } from "next-themes";
 export default function Hero() {
   const [isHovered, setIsHovered] = useState(false);
   const [circlePos, setCirclePos] = useState({ x: 0, y: 0 });
+  const [mounted, setMounted] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const { theme } = useTheme();
+
+  useEffect(() => { setMounted(true); }, []);
   
   const springConfig = { damping: 20, stiffness: 150 };
   const x = useSpring(useMotionValue(0), springConfig);
@@ -74,7 +77,7 @@ export default function Hero() {
                 cx={circlePos.x}
                 cy={circlePos.y}
                 r={isHovered ? 110 : 0}
-                fill={theme === "dark" ? "#f5f0e8" : "#1a1225"}
+                fill={mounted ? (theme === "dark" ? "#f5f0e8" : "#1a1225") : "#1a1225"}
                 initial={{ r: 0 }}
                 animate={{ r: isHovered ? 110 : 0 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
@@ -85,7 +88,7 @@ export default function Hero() {
                 x="0"
                 y="45%"
                 className="text-5xl md:text-6xl lg:text-7xl font-bold italic"
-                fill={theme === "dark" ? "#0c0612" : "#f5f0e8"}
+                fill={mounted ? (theme === "dark" ? "#0c0612" : "#f5f0e8") : "#f5f0e8"}
                 clipPath="url(#circleClip)"
                 style={{ fontFamily: 'inherit', fontSize: 'clamp(3rem, 5vw, 4.5rem)', opacity: isHovered ? 1 : 0 }}
               >
