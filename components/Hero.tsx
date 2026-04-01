@@ -98,7 +98,7 @@ export default function Hero() {
           </div>
 
           <p className="text-lg md:text-xl text-[var(--text-secondary)] max-w-lg mb-8 leading-relaxed">
-            A software engineer blending creativity and code to build impactful user experiences.
+            Building scalable backend systems and cloud infrastructure that power real-world applications.
           </p>
 
           <div className="flex flex-wrap gap-4">
