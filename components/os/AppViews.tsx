@@ -307,7 +307,7 @@ export function ContactApp() {
       <div className="space-y-2.5">
         {[["EMAIL", profile.email, `mailto:${profile.email}`],
           ["GITHUB", "K-sau07", profile.github],
-          ["LINKEDIN", "saurabh-kashyap", profile.linkedin],
+          ["LINKEDIN", "saurabh-kashyap-b5a4ab22a", profile.linkedin],
           ["PHONE", profile.phone, `tel:${profile.phone.replace(/\D/g, "")}`]].map(([k, v, href]) => (
           <a key={k} href={href} target="_blank" rel="noreferrer"
              className="flex items-baseline gap-5 py-2.5 border-b border-white/8 group">

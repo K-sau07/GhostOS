@@ -183,7 +183,7 @@ export default function MobileView() {
           {[["EMAIL", profile.email, `mailto:${profile.email}`],
             ["PHONE", profile.phone, `tel:${profile.phone.replace(/\D/g, "")}`],
             ["GITHUB", "K-sau07", profile.github],
-            ["LINKEDIN", "saurabh-kashyap", profile.linkedin]].map(([k, v, href]) => (
+            ["LINKEDIN", "saurabh-kashyap-b5a4ab22a", profile.linkedin]].map(([k, v, href]) => (
             <a key={k} href={href} target="_blank" rel="noreferrer"
                className="flex items-baseline gap-4 py-3 border-b border-white/8">
               <span className="mono text-[9.5px] tracking-[.18em] text-white/38 w-[68px] shrink-0">{k}</span>

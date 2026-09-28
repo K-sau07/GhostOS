@@ -10,7 +10,7 @@ export const profile = {
   email: "saurabh.k@itjobinbox.com",
   phone: "508-251-9255",
   github: "https://github.com/K-sau07",
-  linkedin: "https://www.linkedin.com/in/saurabh-kashyap",
+  linkedin: "https://www.linkedin.com/in/saurabh-kashyap-b5a4ab22a/",
   years: "3+",
   summary:
     "Software engineer with 3+ years designing and shipping distributed backend systems in " +
