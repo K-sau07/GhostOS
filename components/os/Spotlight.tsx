@@ -5,17 +5,7 @@ import { useOS } from "@/lib/store";
 import { DOCK_ITEMS, PROJECT_FILES } from "@/lib/apps";
 
 export default function Spotlight() {
-  const { spotlight, setSpotlight, open } = useOS();
-  const [q, setQ] = useState("");
-  const [i, setI] = useState(0);
-  const input = useRef<HTMLInputElement>(null);
-
-  const pool = useMemo(() => [...DOCK_ITEMS, ...PROJECT_FILES], []);
-  const hits = useMemo(() => {
-    const s = q.trim().toLowerCase();
-    if (!s) return pool.slice(0, 6);
-    return pool.filter((a) => a.title.toLowerCase().includes(s)).slice(0, 7);
-  }, [q, pool]);
+  const { spotlight, setSpotlight } = useOS();
 
   // ⌘K / ⌘Space to summon, Esc to dismiss
   useEffect(() => {
@@ -30,9 +20,30 @@ export default function Spotlight() {
     return () => window.removeEventListener("keydown", onKey);
   }, [spotlight, setSpotlight]);
 
+  // The panel owns the query and selection, and only exists while open — so closing
+  // Spotlight discards them. No state reset inside an effect.
+  return (
+    <AnimatePresence>{spotlight && <SpotlightPanel />}</AnimatePresence>
+  );
+}
+
+function SpotlightPanel() {
+  const { setSpotlight, open } = useOS();
+  const [q, setQ] = useState("");
+  const [i, setI] = useState(0);
+  const input = useRef<HTMLInputElement>(null);
+
+  const pool = useMemo(() => [...DOCK_ITEMS, ...PROJECT_FILES], []);
+  const hits = useMemo(() => {
+    const s = q.trim().toLowerCase();
+    if (!s) return pool.slice(0, 6);
+    return pool.filter((a) => a.title.toLowerCase().includes(s)).slice(0, 7);
+  }, [q, pool]);
+
   useEffect(() => {
-    if (spotlight) { setQ(""); setI(0); setTimeout(() => input.current?.focus(), 60); }
-  }, [spotlight]);
+    const t = setTimeout(() => input.current?.focus(), 60);
+    return () => clearTimeout(t);
+  }, []);
 
   const run = (a: (typeof pool)[number]) => {
     setSpotlight(false);
@@ -41,8 +52,8 @@ export default function Spotlight() {
   };
 
   return (
-    <AnimatePresence>
-      {spotlight && (
+    <>
+      {(
         <motion.div
           className="fixed inset-0 z-[3000] flex items-start justify-center pt-[19vh]"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -100,6 +111,6 @@ export default function Spotlight() {
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </>
   );
 }

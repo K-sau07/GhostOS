@@ -4,7 +4,6 @@ import {
   profile, education, experience, projects, skills,
   certifications, workSystems, type WorkSystem,
 } from "@/lib/content";
-import { useOS } from "@/lib/store";
 import Architecture from "./Architecture";
 import {
   Toolbar, Sidebar, SidebarGroup, SidebarItem, StatusBar, SearchField,

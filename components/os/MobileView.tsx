@@ -22,7 +22,7 @@ const Tag = ({ children }: { children: React.ReactNode }) => (
 );
 const Section = ({ n, title, children }: { n: string; title: string; children: React.ReactNode }) => (
   <motion.section {...rise} className="px-6 py-14 border-t border-white/8">
-    <Eyebrow>[ {n} // {title} ]</Eyebrow>
+    <Eyebrow>{`[ ${n} // ${title} ]`}</Eyebrow>
     {children}
   </motion.section>
 );

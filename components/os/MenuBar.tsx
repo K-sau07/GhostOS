@@ -6,16 +6,15 @@ import { profile } from "@/lib/content";
 
 
 function Clock() {
-  const [now, setNow] = useState<Date | null>(null);
-  // null until mounted so server and client markup agree (no hydration mismatch)
+  // Seeded during render rather than in an effect. Server and client will disagree
+  // by definition here, so the mismatch is suppressed on the rendered node.
+  const [now, setNow] = useState(() => new Date());
   useEffect(() => {
-    setNow(new Date());
     const t = setInterval(() => setNow(new Date()), 1000 * 20);
     return () => clearInterval(t);
   }, []);
-  if (!now) return <span className="mono text-[11px] tracking-[.1em] opacity-0">00:00</span>;
   return (
-    <span className="mono text-[11px] tracking-[.1em] text-white/72">
+    <span suppressHydrationWarning className="mono text-[11px] tracking-[.1em] text-white/72">
       {now.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
       {"  "}
       {now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}

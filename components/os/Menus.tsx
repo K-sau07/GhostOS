@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export interface MenuItem {
@@ -90,16 +90,15 @@ export function ContextMenu({
   at, items, onClose,
 }: { at: { x: number; y: number } | null; items: MenuItem[]; onClose: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [pos, setPos] = useState(at);
 
-  useEffect(() => {
-    if (!at) { setPos(null); return; }
-    // keep the panel on screen
+  // Clamped position is derived from `at`, not mirrored into state.
+  const pos = useMemo(() => {
+    if (!at || typeof window === "undefined") return null;
     const w = 212, h = items.length * 27 + 12;
-    setPos({
+    return {
       x: Math.min(at.x, window.innerWidth - w - 8),
       y: Math.min(at.y, window.innerHeight - h - 8),
-    });
+    };
   }, [at, items.length]);
 
   useEffect(() => {

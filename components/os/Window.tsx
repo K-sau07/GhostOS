@@ -2,7 +2,6 @@
 import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import { useOS, type WinState } from "@/lib/store";
 
-const MENUBAR = 30;
 const DOCK = 78;
 
 function TrafficLights({ id }: { id: string }) {
