@@ -15,11 +15,13 @@ function scaleAt(mouseX: number | null, centre: number | undefined): number {
 }
 
 function DockIcon({
-  item, mouseX, onMeasure,
+  item, mouseX, onMeasure, hovered, setHovered,
 }: {
   item: (typeof DOCK_ITEMS)[number];
   mouseX: number | null;
   onMeasure: (id: string, centre: number) => void;
+  hovered: string | null;
+  setHovered: (id: string | null) => void;
 }) {
   const { open, windows } = useOS();
   const running = windows.some((w) => w.id === item.id);
@@ -37,11 +39,17 @@ function DockIcon({
 
   return (
     <div className="relative flex flex-col items-center">
+      {/*
+        Driven by hover rather than by scale: magnification lifts neighbours too, so a
+        cursor between two icons pushed both past the old threshold and showed two labels
+        at once. z-30 is needed because each sibling button is transformed, which makes it
+        a stacking context — without it, a label is painted behind the next icon's tile.
+      */}
       <motion.span
-        className="mono pointer-events-none absolute -top-9 whitespace-nowrap rounded-md
+        className="mono pointer-events-none absolute -top-9 z-30 whitespace-nowrap rounded-md
                    px-2.5 py-1 text-[10px] tracking-[.12em] glass"
         initial={false}
-        animate={{ opacity: s > 1.3 ? 1 : 0, y: s > 1.3 ? 0 : 6 }}
+        animate={{ opacity: hovered === item.id ? 1 : 0, y: hovered === item.id ? 0 : 6 }}
         transition={{ duration: .2 }}
       >
         {item.title}
@@ -50,6 +58,9 @@ function DockIcon({
       <motion.button
         ref={measure}
         onClick={() => item.href ? window.open(item.href, "_blank") : open(item.id, item.title, item.w, item.h)}
+        onMouseEnter={() => setHovered(item.id)}
+        onFocus={() => setHovered(item.id)}
+        onBlur={() => setHovered(null)}
         aria-label={item.title}
         animate={{ scale: s, y: -(s - 1) * 16 }}
         transition={{ type: "spring", stiffness: 420, damping: 26, mass: .5 }}
@@ -69,19 +80,21 @@ function DockIcon({
 
 export default function Dock() {
   const [mouseX, setMouseX] = useState<number | null>(null);
+  const [hovered, setHovered] = useState<string | null>(null);
   const noteCentre = useCallback(() => {}, []);
   return (
     <div className="fixed bottom-2.5 left-0 right-0 z-[400] flex justify-center pointer-events-none">
       <div
         onMouseMove={(e) => setMouseX(e.clientX)}
-        onMouseLeave={() => setMouseX(null)}
+        onMouseLeave={() => { setMouseX(null); setHovered(null); }}
         className="pointer-events-auto flex items-end gap-2.5 px-3 pt-2 pb-1.5
                    rounded-[17px] glass"
       >
         {DOCK_ITEMS.map((it) => (
           <div key={it.id} className="flex items-end gap-2.5">
             {it.sep && <span className="w-px h-9 bg-white/14 mx-.5 mb-3" />}
-            <DockIcon item={it} mouseX={mouseX} onMeasure={noteCentre} />
+            <DockIcon item={it} mouseX={mouseX} onMeasure={noteCentre}
+                      hovered={hovered} setHovered={setHovered} />
           </div>
         ))}
       </div>
