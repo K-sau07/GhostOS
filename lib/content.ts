@@ -131,6 +131,7 @@ export const projects: Project[] = [
     ],
     stack: ["Java", "Spring AI", "Anthropic Claude", "pgvector", "PostgreSQL", "React", "TypeScript", "Docker"],
     repo: "https://github.com/K-sau07/TAssist",
+    live: "https://t-assist.vercel.app",
     kind: "ai", size: "386 files", when: "Aug 2026", diagram: true, featured: true,
   },
   {
@@ -148,6 +149,7 @@ export const projects: Project[] = [
     ],
     stack: ["Java", "Spring Boot", "TypeScript", "React", "Scheduling"],
     repo: "https://github.com/K-sau07/Watchdog",
+    live: "https://watchdog-sand.vercel.app",
     kind: "platform", size: "151 files", when: "Sep 2026", diagram: true, featured: true,
   },
   {
@@ -165,7 +167,27 @@ export const projects: Project[] = [
     ],
     stack: ["Java 21", "Spring Boot 3.2", "Kafka", "PostgreSQL", "Flyway", "Redis"],
     repo: "https://github.com/K-sau07/openlens",
+    live: "https://openlens-ten.vercel.app",
     kind: "ai", size: "92 files", when: "May 2026", diagram: true, featured: true,
+  },
+  {
+    id: "ecoplate",
+    file: "ecoplate.app",
+    name: "Ecoplate",
+    tagline: "Food waste, priced dynamically",
+    blurb:
+      "Connects grocery stores with customers and NGOs to cut food waste. Surplus stock is " +
+      "discounted dynamically as expiry approaches, and whatever still does not sell is routed " +
+      "to NGOs for free distribution rather than thrown away.",
+    bullets: [
+      "Dynamic pricing tied to expiry, so the discount deepens as the window closes.",
+      "Unsold stock routes to NGO claims instead of waste — the two flows share one inventory.",
+      "Team project: Java/Spring backend with JaCoCo coverage enforced in CI.",
+    ],
+    stack: ["Java", "Spring Boot", "PostgreSQL", "React", "JaCoCo", "Docker"],
+    repo: "https://github.com/K-sau07/ecoplate",
+    live: "https://ecoplate-gamma.vercel.app",
+    kind: "platform", size: "80 Java files", when: "Dec 2025",
   },
   {
     id: "cloud-infra",
