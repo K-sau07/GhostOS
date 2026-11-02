@@ -56,12 +56,12 @@ const DIAGRAMS: Record<string, Diagram> = {
       [{ id: "cw", label: "CloudWatch", sub: "StatsD · logs" }],
     ],
     edges: ["gha>tf", "packer>tf", "tf>vpc", "vpc>alb", "alb>asg", "asg>rds", "asg>cw", "rds>cw"],
-    note: "IAM roles and KMS encryption throughout, sustaining 99.9% availability under load. Full IaC automation cut deployment cycles ~65%.",
+    note: "IAM roles and KMS encryption throughout, sustaining 99.9% availability across multi-AZ deployments, with CloudWatch monitoring over full IaC automation.",
   },
   gateway: {
     caption: "One entry point, 45+ endpoints behind it",
     layers: [
-      [{ id: "user", label: "Enterprise User", sub: "dashboard · 3.2M/day" }],
+      [{ id: "user", label: "Enterprise User", sub: "workflow dashboard" }],
       [{ id: "gw", label: "Spring Cloud Gateway", sub: "single entry point", accent: true }],
       [{ id: "auth", label: "Auth + Routing", sub: "rejected at the edge" }],
       [{ id: "wf", label: "Workflow Service", sub: "/api/workflows" },
@@ -75,11 +75,11 @@ const DIAGRAMS: Record<string, Diagram> = {
     note:
       "The gateway consolidates 45+ downstream endpoints so clients get one consistent entry " +
       "point, and unauthorised requests are rejected before they reach any service. Services check " +
-      "Redis first; on a miss they query MySQL and write the result back. Cache hit ratio moved " +
-      "62% → 89%, database load fell 44%, client-side latency fell 38%.",
+      "Redis first; on a miss they query MySQL and write the result back, taking the cache hit " +
+      "ratio from 62% to 89% and cutting redundant database queries.",
   },
   batch: {
-    caption: "1.2M records a night, nothing blocks on one bad row",
+    caption: "Nightly sync, nothing blocks on one bad row",
     layers: [
       [{ id: "src", label: "Source Systems", sub: "workflow data" }],
       [{ id: "s3", label: "AWS S3", sub: "nightly drop" }],
@@ -96,7 +96,7 @@ const DIAGRAMS: Record<string, Diagram> = {
     note:
       "Instead of one huge sequential transaction, records are split into chunks and processed in " +
       "parallel. Skip-error handling means a single invalid record is logged and stepped over rather " +
-      "than failing the whole run — batch completion time fell 61%.",
+      "than failing the whole run, so one bad row never costs the night’s sync.",
   },
   observability: {
     caption: "8 services, one pane of glass",
@@ -114,15 +114,15 @@ const DIAGRAMS: Record<string, Diagram> = {
       "under 4 — covering API failures, exception patterns, slow requests and batch failures.",
   },
   orders: {
-    caption: "5 order types, 6,000 a day, reconciled nightly",
+    caption: "5 order types, reconciled nightly",
     layers: [
-      [{ id: "ui", label: "Client", sub: "1,000+ concurrent" }],
+      [{ id: "ui", label: "Client", sub: "investor dashboard" }],
       [{ id: "api", label: "Order APIs", sub: "10+ REST", accent: true }],
       [{ id: "val", label: "Validation", sub: "SIP·SWP·STP·LS·RD" }],
       [{ id: "exch", label: "Exchange API", sub: "third-party" },
        { id: "cache", label: "Redis", sub: "650→180ms" }],
       [{ id: "batch", label: "Spring Batch", sub: "reconciliation", accent: true }],
-      [{ id: "src", label: "S3 + OpenSearch", sub: "1M+ records/day" }],
+      [{ id: "src", label: "S3 + OpenSearch", sub: "nightly feed" }],
     ],
     edges: ["ui>api", "api>val", "val>exch", "api>cache", "exch>batch", "cache>batch", "batch>src"],
     note: "Transaction-safe placement across high-volume trading flows in a regulated fintech environment. Redis caching and connection pooling took API latency from 650ms to 180ms.",

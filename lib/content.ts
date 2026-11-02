@@ -1,4 +1,5 @@
-/* Sourced verbatim from Saurabh Kashyap's resume (the Downloads copy, Sept 2026).
+/* Sourced from Saurabh Kashyap's resume — now `saurabh_master_resume_v4`
+   (~/Documents/SaurabhBrain/Me/resume), updated 2026-11-02.
    Single source of truth for site copy — components read from here. */
 
 export const profile = {
@@ -13,10 +14,9 @@ export const profile = {
   linkedin: "https://www.linkedin.com/in/saurabh-kashyap-b5a4ab22a/",
   years: "3+",
   summary:
-    "Software engineer with 3+ years designing and shipping distributed backend systems in " +
-    "Java and Spring Boot — from an enterprise API gateway and batch processing platforms to a " +
-    "regulated fintech order-execution platform. Strong foundation in AWS, microservices, and " +
-    "performance optimization, with hands-on LLM/RAG product experience.",
+    "Software Engineer with 3+ years building Java/Spring Boot microservices, React " +
+    "applications, and AWS data workflows. Experienced in financial APIs, SQL performance, " +
+    "production reliability, and RAG-based developer tools.",
   available: "OPEN TO SWE ROLES",
 };
 
@@ -53,42 +53,41 @@ export const experience: Role[] = [
   {
     company: "ServiceNow",
     title: "Software Engineer",
-    where: "MA",
-    when: "Sep 2025 — Apr 2026",
+    where: "Massachusetts, USA",
+    when: "Feb 2026 — Present",
     bullets: [
-      "Reengineered the RESTful API gateway layer with Spring Cloud Gateway, consolidating 45+ downstream endpoints and cutting client-side call latency 38% while processing 3.2M daily requests at 99.95% uptime.",
-      "Built a fault-tolerant data synchronization engine using Spring Batch and AWS S3 that processed 1.2M+ workflow records nightly, reducing batch completion time 61% through parallel chunk processing and skip-error handling.",
-      "Redesigned a high-traffic caching strategy with Redis using a cache-aside pattern and TTL tuning, improving cache hit ratio from 62% to 89% and reducing database load 44%.",
-      "Implemented centralized logging and monitoring with the ELK stack across 8 microservices, cutting mean time to detection for production anomalies from 14 minutes to under 4.",
-      "Optimized MySQL query performance through composite indexing and query refactoring, accelerating page load times 52% and improving user satisfaction scores 27% over six months.",
+      "Consolidated 45+ REST endpoints behind Spring Cloud Gateway, standardizing API routing across Java/Spring Boot workflow microservices and simplifying client integration.",
+      "Orchestrated nightly workflow synchronization with Spring Batch and AWS S3, using parallel chunk processing, validation, and fault-tolerant error handling.",
+      "Raised Redis cache hit rate from 62% to 89% through cache-aside reads and TTL tuning, limiting repeat MySQL queries in reporting services.",
+      "Tuned MySQL reporting queries with composite indexes and query refactoring to improve dashboard data retrieval and reduce database overhead.",
+      "Collaborated with QA and DevOps to centralize ELK logging and Kibana alerts across 8 microservices, cutting issue detection from 14 to under 4 minutes.",
     ],
-    stack: ["Spring Cloud Gateway", "Spring Batch", "Redis", "AWS S3", "ELK", "MySQL"],
+    stack: ["Java", "Spring Boot", "Spring Cloud Gateway", "Spring Batch", "Redis", "AWS S3", "ELK", "MySQL"],
     metrics: [
-      ["3.2M", "daily requests"],
-      ["38%", "latency cut"],
-      ["99.95%", "uptime"],
-      ["61%", "faster batches"],
+      ["45+", "REST endpoints"],
+      ["62→89%", "cache hit ratio"],
+      ["8", "microservices"],
+      ["14→4 min", "issue detection"],
     ],
   },
   {
-    company: "Bhardwaj Tech IT Solutions Pvt Ltd",
+    company: "Bhardwaj Tech IT Solutions Pvt. Ltd.",
     title: "Software Development Engineer",
     where: "Gurugram, India",
     when: "Mar 2022 — Jul 2024",
     bullets: [
-      "Architected a scalable order-execution platform for a mutual fund client across 5 order types (SIP, SWP, STP, lump sum, redemption), scaling to 6,000 orders/day with end-to-end validation, placement, and reconciliation.",
-      "Built 10+ RESTful APIs in Java and Spring Boot for fund listings, advanced filtering, and live graph data, integrating third-party exchange APIs with transaction-safe order placement.",
-      "Reduced API latency from 650ms to 180ms through Redis caching, connection pooling, and SQL query optimization, for 1,000+ concurrent users during peak market hours.",
-      "Engineered fault-tolerant microservices with automated CI/CD, Docker containerization on AWS (EC2, RDS), and production monitoring, sustaining 99.9% uptime and cutting deployment time 55%.",
-      "Designed a resilient data reconciliation pipeline using Java and Spring Batch, processing 1M+ records/day from Amazon S3 and querying OpenSearch APIs to detect missing order IDs.",
-      "Shipped 25+ full-stack production features using React, JavaScript, and Node.js.",
+      "Delivered 10+ Java/Spring Boot REST APIs for SMC’s mutual fund investment platform, supporting fund discovery, order placement, and transaction tracking.",
+      "Automated BSE StAR MF payment-status checks with scheduled jobs, updating PENDING investment orders from exchange responses to keep transaction status current.",
+      "Cut fund-search API latency from 650 ms to 180 ms through Redis caching, SQL query optimization, and database connection pooling.",
+      "Implemented Spring Batch reconciliation with AWS S3 and OpenSearch to flag unmatched order IDs, detect discrepancies, and handle transient processing failures.",
+      "Designed React fund-discovery dashboards with advanced filters, interactive performance charts, and API-backed investment data for customer research.",
+      "Simplified React order-entry and tracking flows for 5 investment types through reusable forms, client-side validation, and API-driven status updates.",
     ],
-    stack: ["Java", "Spring Boot", "Spring Batch", "Redis", "AWS", "Docker", "OpenSearch"],
+    stack: ["Java", "Spring Boot", "Spring Batch", "React.js", "Redis", "AWS S3", "OpenSearch", "SQL"],
     metrics: [
-      ["6,000", "orders / day"],
+      ["10+", "REST APIs"],
       ["650→180ms", "API latency"],
-      ["99.9%", "uptime"],
-      ["1M+", "records / day"],
+      ["5", "transaction types"],
     ],
   },
 ];
@@ -116,6 +115,24 @@ export interface Project {
 
 export const projects: Project[] = [
   {
+    id: "repo-sensei",
+    file: "repo-sensei.app",
+    name: "Repo-Sensei",
+    tagline: "AI Codebase Engineer",
+    blurb:
+      "An AI platform that answers questions about large codebases, combining hybrid keyword + " +
+      "vector search with a code graph that links UI, API and database. It indexes 2.1M lines " +
+      "(11.4K files) in about 3.5 minutes and traces features from page to database 2.3x more " +
+      "accurately \u2014 recall 0.27 \u2192 0.62 on a 20-flow benchmark I built.",
+    bullets: [
+      "Indexed 2.1M lines across 11.4K files in ~3.5 minutes using hybrid search and a UI–API–database code graph, raising feature-trace recall from 0.27 to 0.62 (2.3x).",
+      "Built FastAPI, PostgreSQL/pgvector, Celery/Redis, and Next.js with OAuth-secured MCP tools for Claude Code and IDEs; cut tool response time 78% and sandboxed AI code in gVisor with 4,000+ tests.",
+    ],
+    stack: ["Python", "FastAPI", "PostgreSQL", "pgvector", "Celery", "Redis", "Next.js", "TypeScript", "MCP", "Docker"],
+    repo: "https://github.com/K-sau07/repo-sensei",
+    kind: "ai", size: "2.1M lines indexed", when: "Nov 2026", featured: true,
+  },
+  {
     id: "tassist",
     file: "tassist.app",
     name: "TAssist",
@@ -125,9 +142,8 @@ export const projects: Project[] = [
       "streamed in real time, freeing 8 hours a week previously spent on repetitive manual doubt " +
       "resolution. Answers are never invented; every one carries a citation.",
     bullets: [
-      "Ingestion pipeline using Apache POI for PPT extraction into PostgreSQL + pgvector via Spring AI and Anthropic Claude.",
-      "React + TypeScript frontend delivering slide-level citations across 100+ slides.",
-      "277 Java source files across ingestion, retrieval, and chat services.",
+      "Created a Spring AI RAG assistant with Claude, pgvector, and React, streaming cited answers and saving an estimated 8 hours/week of routine support.",
+      "Indexed 100+ presentation slides using Apache POI and PostgreSQL embeddings, linking generated responses to source slide citations.",
     ],
     stack: ["Java", "Spring AI", "Anthropic Claude", "pgvector", "PostgreSQL", "React", "TypeScript", "Docker"],
     repo: "https://github.com/K-sau07/TAssist",
@@ -198,8 +214,8 @@ export const projects: Project[] = [
       "Multi-environment cloud infrastructure in Terraform and AWS, provisioning fault-tolerant " +
       "multi-AZ deployments with IAM roles and KMS encryption to sustain 99.9% availability under load.",
     bullets: [
-      "End-to-end CI/CD via GitHub Actions and Packer for custom AMI builds.",
-      "CloudWatch monitoring, StatsD metrics and centralised logging — cutting deployment cycles ~65% through full IaC automation.",
+      "Provisioned multi-AZ AWS infrastructure (VPC, EC2, RDS, ALB) through Terraform, with IAM permissions and KMS encryption.",
+      "Reduced deployment cycles by ~65% using Packer AMIs and GitHub Actions CI/CD, adding CloudWatch and StatsD release monitoring.",
     ],
     stack: ["Terraform", "AWS", "VPC", "EC2", "RDS", "ALB", "Packer", "GitHub Actions"],
     repo: "https://github.com/K-sau07/tf-aws-infrastructure",
@@ -363,8 +379,8 @@ export const workSystems: WorkSystem[] = [
     at: "ServiceNow",
     blurb:
       "An enterprise workflow and reporting platform on a microservices architecture. I reengineered " +
-      "the gateway layer with Spring Cloud Gateway, consolidating 45+ downstream endpoints behind a " +
-      "single entry point serving 3.2M requests a day at 99.95% uptime — with Redis cache-aside and " +
+      "the gateway layer with Spring Cloud Gateway, consolidating 45+ REST endpoints behind a " +
+      "single entry point so clients get one consistent surface — with Redis cache-aside and " +
       "MySQL index work underneath it.",
     stack: ["Java", "Spring Boot", "Spring Cloud Gateway", "Redis", "MySQL"],
   },
@@ -374,9 +390,9 @@ export const workSystems: WorkSystem[] = [
     name: "Nightly Data Synchronisation",
     at: "ServiceNow",
     blurb:
-      "A fault-tolerant synchronisation engine processing 1.2M+ workflow records every night from " +
+      "A fault-tolerant synchronisation engine pulling workflow records every night from " +
       "AWS S3. Parallel chunk processing replaced a sequential run, and skip-error handling means one " +
-      "malformed record no longer takes the whole batch down. Completion time fell 61%.",
+      "malformed record no longer takes the whole batch down.",
     stack: ["Java", "Spring Batch", "AWS S3", "MySQL"],
   },
   {
@@ -395,8 +411,8 @@ export const workSystems: WorkSystem[] = [
     name: "Fintech Order Execution",
     at: "Bhardwaj Tech",
     blurb:
-      "Order-execution platform for a mutual fund client across 5 order types, scaling to 6,000 " +
-      "orders a day with end-to-end validation, placement and reconciliation.",
+      "Order-execution platform for a mutual fund client across 5 order types (SIP, SWP, STP, " +
+      "lump sum, redemption) with end-to-end validation, placement and reconciliation.",
     stack: ["Java", "Spring Boot", "Spring Batch", "OpenSearch", "AWS"],
   },
 ];
@@ -422,7 +438,7 @@ export const skills = {
 
 /** headline numbers for the desktop + about */
 export const headline: [string, string][] = [
-  ["3.2M", "REQUESTS / DAY"],
-  ["99.95%", "UPTIME"],
+  ["45+", "REST ENDPOINTS"],
+  ["650→180ms", "API LATENCY"],
   ["3+", "YEARS SHIPPING"],
 ];
