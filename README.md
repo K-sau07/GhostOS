@@ -10,33 +10,30 @@ My portfolio is an operating system in a browser tab.
 ![Tailwind](https://img.shields.io/badge/Tailwind_4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
 ![Framer](https://img.shields.io/badge/Framer_Motion-0055FF?style=flat-square&logo=framer&logoColor=white)
 
-Boot sequence, menu bar with working dropdowns, a dock with real cursor-distance
-magnification, draggable and resizable windows with traffic lights and z-stacking,
-Spotlight on ⌘K, right-click context menus, and a shell you can actually type into.
-Built from scratch — no UI kit.
+Menu bar with working dropdowns, a dock that magnifies toward the cursor, draggable and
+resizable windows, Spotlight on ⌘K, a right-click menu, and a shell you can type into.
+No UI kit.
 
 ## The look
 
-Monochrome. There is no accent colour; hierarchy is carried entirely by luminance.
-Volumetric fog drifts behind everything, film grain sits on top, and the name is
-rendered with a gradient through `background-clip: text` so the letterforms dissolve
-into the background rather than sitting on it.
+The same theme as my GitHub profile README, values copied from the generators that draw
+it. Georgia for names, the system sans for reading, monospace for labels and code. One
+accent, used sparingly. 1px hairlines, 14px radii, a dot grid fading out behind things.
+Light and dark both follow the OS, with a toggle in the menu bar.
 
-## Apps
+## Windows
 
 | | |
 |:--|:--|
-| `about.mdx` | profile, experience, stack, education — source-list navigation |
-| `work` | a real Finder: sidebar, toolbar, icon and list views, search, status bar |
-| `systems.app` | **architecture diagrams**, including the production systems |
-| `live.app` | 3D coverflow of deployed projects |
-| `Safari` | device-bezel browser that loads the live site |
-| `terminal.app` | working shell — `whoami`, `ls work`, `cat <project>`, `open <app>` |
-| `resume.pdf` · `contact.mail` · `trash` | |
+| `about` | who, what, and three facts under a hairline |
+| `repo-sensei` | the README card, rebuilt: the question types itself, the trace draws down seven hops, citation chips light the rows they cite, replay |
+| `projects` | six running projects, each with one small animated motif, then four from before |
+| `shell` | `help`, `ls`, `cat <project>`, `sensei`, `open <window>`, `theme dark` |
+| `résumé.pdf` | the PDF, in a window |
 
-`systems.app` is the point. Anyone can list technologies; it draws how the systems
-actually fit together — request paths, batch pipelines, retrieval flows — rendered as
-auto-laid-out SVG with orthogonal routing.
+Every window is in the server-rendered HTML. The desktop decides which ones float where;
+without JavaScript, or on a phone, the same windows stack into one page. The boot plays
+once per session, in CSS. Motion stops under `prefers-reduced-motion`.
 
 ## Running it
 
@@ -55,11 +52,5 @@ All three run in CI on every push.
 
 ## Content
 
-Everything the site says lives in `lib/content.ts` — one file, no copy embedded in
-components. `components/os/` holds the window manager, dock, menus and each app.
-State is a single Zustand store in `lib/store.ts`.
-
-## Mobile
-
-The desktop metaphor doesn't survive a phone, so under the `md` breakpoint it becomes
-a scrolling page with the same palette and typography.
+Everything the site says lives in `lib/content.ts`. The site's own URL lives in
+`lib/site.ts`; moving to a personal domain is a change to that one line.

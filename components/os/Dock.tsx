@@ -1,103 +1,75 @@
 "use client";
-import { useCallback, useState } from "react";
-import { motion } from "framer-motion";
-import { useOS } from "@/lib/store";
-import { DOCK_ITEMS } from "@/lib/apps";
+import { useRef, useState } from "react";
+import { m } from "framer-motion";
+import { useOS, type WinId } from "@/lib/store";
+import { launch, openUrl } from "@/lib/actions";
+import { profile } from "@/lib/content";
 
-const MAGNIFY_RANGE = 130;
+type Item = { label: string; win?: WinId; href?: string; sep?: boolean };
 
-/** Scale falls off with distance from the cursor, like the macOS dock. */
-function scaleAt(mouseX: number | null, centre: number | undefined): number {
-  if (mouseX === null || centre === undefined) return 1;
-  const d = Math.abs(mouseX - centre);
-  if (d > MAGNIFY_RANGE) return 1;
-  return 1 + 0.62 * Math.pow(1 - d / MAGNIFY_RANGE, 1.8);
-}
+const ITEMS: Item[] = [
+  { label: "about", win: "about" },
+  { label: "repo-sensei", win: "sensei" },
+  { label: "projects", win: "projects" },
+  { label: "shell", win: "shell" },
+  { label: "résumé", win: "resume" },
+  { label: "github ↗", href: profile.github, sep: true },
+  { label: "linkedin ↗", href: profile.linkedin },
+];
 
-function DockIcon({
-  item, mouseX, onMeasure, hovered, setHovered,
-}: {
-  item: (typeof DOCK_ITEMS)[number];
-  mouseX: number | null;
-  onMeasure: (id: string, centre: number) => void;
-  hovered: string | null;
-  setHovered: (id: string | null) => void;
-}) {
-  const { open, windows } = useOS();
-  const running = windows.some((w) => w.id === item.id);
-  const [centre, setCentre] = useState<number | undefined>(undefined);
-  const s = scaleAt(mouseX, centre);
-
-  // Measure once mounted rather than reading a ref while rendering.
-  const measure = useCallback((node: HTMLButtonElement | null) => {
-    if (!node) return;
-    const r = node.getBoundingClientRect();
-    const c = r.left + r.width / 2;
-    setCentre(c);
-    onMeasure(item.id, c);
-  }, [item.id, onMeasure]);
-
-  return (
-    <div className="relative flex flex-col items-center">
-      {/*
-        Driven by hover rather than by scale: magnification lifts neighbours too, so a
-        cursor between two icons pushed both past the old threshold and showed two labels
-        at once. z-30 is needed because each sibling button is transformed, which makes it
-        a stacking context — without it, a label is painted behind the next icon's tile.
-      */}
-      <motion.span
-        className="mono pointer-events-none absolute -top-9 z-30 whitespace-nowrap rounded-md
-                   px-2.5 py-1 text-[10px] tracking-[.12em] glass"
-        initial={false}
-        animate={{ opacity: hovered === item.id ? 1 : 0, y: hovered === item.id ? 0 : 6 }}
-        transition={{ duration: .2 }}
-      >
-        {item.title}
-      </motion.span>
-
-      <motion.button
-        ref={measure}
-        onClick={() => item.href ? window.open(item.href, "_blank") : open(item.id, item.title, item.w, item.h)}
-        onMouseEnter={() => setHovered(item.id)}
-        onFocus={() => setHovered(item.id)}
-        onBlur={() => setHovered(null)}
-        aria-label={item.title}
-        animate={{ scale: s, y: -(s - 1) * 16 }}
-        transition={{ type: "spring", stiffness: 420, damping: 26, mass: .5 }}
-        className="grid place-items-center w-[46px] h-[46px] rounded-[11px]
-                   text-white/78 hover:text-white glass origin-bottom"
-      >
-        <item.icon size={26} />
-      </motion.button>
-
-      <span
-        className={`mt-[5px] h-[3px] w-[3px] rounded-full transition-opacity duration-300
-                    ${running ? "bg-white/85 opacity-100" : "opacity-0"}`}
-      />
-    </div>
-  );
-}
+const RANGE = 150;
+/** Scale falls off with distance from the cursor, like the macOS dock, but quieter. */
+const scaleAt = (x: number, centre: number) => {
+  const d = Math.abs(x - centre);
+  return d > RANGE ? 1 : 1 + 0.12 * Math.pow(1 - d / RANGE, 1.6);
+};
 
 export default function Dock() {
-  const [mouseX, setMouseX] = useState<number | null>(null);
-  const [hovered, setHovered] = useState<string | null>(null);
-  const noteCentre = useCallback(() => {}, []);
+  const wins = useOS((s) => s.wins);
+  const tiles = useRef<(HTMLButtonElement | null)[]>([]);
+  const [scales, setScales] = useState<number[]>(() => ITEMS.map(() => 1));
+
+  const onMove = (e: React.MouseEvent) =>
+    setScales(tiles.current.map((el) => {
+      if (!el) return 1;
+      const r = el.getBoundingClientRect();
+      return scaleAt(e.clientX, r.left + r.width / 2);
+    }));
+
   return (
-    <div className="fixed bottom-2.5 left-0 right-0 z-[400] flex justify-center pointer-events-none">
+    <nav aria-label="Dock"
+         className="pointer-events-none fixed inset-x-0 bottom-3 z-[400] flex justify-center max-lg:hidden">
       <div
-        onMouseMove={(e) => setMouseX(e.clientX)}
-        onMouseLeave={() => { setMouseX(null); setHovered(null); }}
-        className="pointer-events-auto flex items-end gap-2.5 px-3 pt-2 pb-1.5
-                   rounded-[17px] glass"
+        onMouseMove={onMove}
+        onMouseLeave={() => setScales(ITEMS.map(() => 1))}
+        className="rise pointer-events-auto flex items-end gap-2 rounded-[16px] border border-line bg-bg px-2 pb-1.5 pt-2
+                   shadow-[var(--shadow)]"
+        style={{ "--d": ".35s" }}
       >
-        {DOCK_ITEMS.map((it) => (
-          <div key={it.id} className="flex items-end gap-2.5">
-            {it.sep && <span className="w-px h-9 bg-white/14 mx-.5 mb-3" />}
-            <DockIcon item={it} mouseX={mouseX} onMeasure={noteCentre}
-                      hovered={hovered} setHovered={setHovered} />
-          </div>
-        ))}
+        {ITEMS.map((it, i) => {
+          const on = it.win ? wins[it.win].open : false;
+          return (
+            <div key={it.label} className="flex items-end gap-2">
+              {it.sep && <span aria-hidden className="mx-1 mb-2.5 h-8 w-px bg-line" />}
+              <div className="flex flex-col items-center">
+                <m.button
+                  ref={(el) => { tiles.current[i] = el; }}
+                  onClick={() => (it.win ? launch(it.win) : openUrl(it.href!))}
+                  animate={{ scale: scales[i], y: -(scales[i] - 1) * 20 }}
+                  transition={{ type: "spring", stiffness: 420, damping: 28, mass: .5 }}
+                  className={`h-11 min-w-[78px] origin-bottom rounded-[10px] border bg-bg px-3.5 font-mono text-[10.5px]
+                              uppercase tracking-[1.6px] transition-colors
+                              ${on ? "border-muted/70 text-fg" : "border-line text-muted hover:text-fg"}`}
+                >
+                  {it.label}
+                </m.button>
+                <span aria-hidden
+                      className={`mt-[5px] h-[3px] w-[3px] rounded-full bg-accent transition-opacity ${on ? "" : "opacity-0"}`} />
+              </div>
+            </div>
+          );
+        })}
       </div>
-    </div>
+    </nav>
   );
 }

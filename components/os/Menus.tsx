@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useMemo, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useMemo } from "react";
+import { m, AnimatePresence } from "framer-motion";
 
 export interface MenuItem {
   label?: string;
@@ -11,72 +11,63 @@ export interface MenuItem {
 }
 
 /** shared dropdown surface for both the menu bar and right-click menus */
-export function MenuPanel({
-  items, onClose, style,
-}: { items: MenuItem[]; onClose: () => void; style?: React.CSSProperties }) {
+export function MenuPanel({ items, onClose }: { items: MenuItem[]; onClose: () => void }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -4, scale: .985 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -3, scale: .99 }}
-      transition={{ duration: .13, ease: [.16, 1, .3, 1] }}
+    <m.div
+      role="menu"
+      initial={{ opacity: 0, y: -3 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -2 }}
+      transition={{ duration: .12 }}
       onClick={(e) => e.stopPropagation()}
-      style={style}
-      className="min-w-[204px] py-1.5 rounded-[7px] z-[2000]
-                 bg-[#1D1F22]/97 border border-white/14
-                 shadow-[0_18px_44px_-8px_rgba(0,0,0,.9)]"
+      className="z-[2000] min-w-[220px] rounded-[10px] border border-line bg-bg py-1.5 shadow-[var(--shadow)]"
     >
       {items.map((it, i) =>
         it.sep ? (
-          <div key={i} className="h-px my-1.5 mx-2 bg-white/10" />
+          <div key={i} className="mx-3 my-1.5 h-px bg-line" />
         ) : (
           <button
             key={i}
+            role="menuitem"
             disabled={it.disabled}
             onClick={() => { it.onSelect?.(); onClose(); }}
-            className="w-full flex items-center gap-6 px-3 py-[5px] text-left
-                       enabled:hover:bg-white/16 disabled:text-white/22 transition-colors"
+            className="flex w-full items-center gap-6 px-3.5 py-[5px] text-left text-[13px]
+                       transition-colors enabled:hover:bg-panel disabled:text-muted/60"
           >
-            <span className="text-[12.5px] text-inherit">{it.label}</span>
-            {it.shortcut && (
-              <span className="mono ml-auto text-[10.5px] text-white/34">{it.shortcut}</span>
-            )}
+            <span>{it.label}</span>
+            {it.shortcut && <span className="ml-auto font-mono text-[11px] text-muted">{it.shortcut}</span>}
           </button>
         )
       )}
-    </motion.div>
+    </m.div>
   );
 }
 
 /** a single menu-bar title that opens its dropdown */
 export function MenuBarMenu({
-  label, items, open, setOpen, bold,
+  label, items, open, setOpen, className = "",
 }: {
-  label: string; items: MenuItem[];
-  open: boolean; setOpen: (v: boolean) => void; bold?: boolean;
+  label: React.ReactNode; items: MenuItem[];
+  open: boolean; setOpen: (v: boolean) => void; className?: string;
 }) {
   return (
     <div className="relative">
       <button
         onClick={() => setOpen(!open)}
-        onMouseEnter={(e) => {
-          // once a menu is open, hovering the siblings switches to them — like macOS
+        onMouseEnter={() => {
+          // once a menu is open, hovering a sibling switches to it, like macOS
           if (document.querySelector("[data-menu-open='true']")) setOpen(true);
-          e.currentTarget.blur();
         }}
         data-menu-open={open}
-        className="px-2.5 h-[22px] rounded transition-colors duration-100"
-        style={{ background: open ? "rgba(255,255,255,.18)" : "transparent" }}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className={`h-[22px] rounded-md px-2.5 transition-colors ${open ? "bg-panel text-fg" : "text-muted hover:text-fg"} ${className}`}
       >
-        <span className={`mono text-[11px] tracking-[.08em] ${
-          bold ? "text-white font-medium" : open ? "text-white" : "text-white/58"
-        }`}>
-          {label}
-        </span>
+        {label}
       </button>
       <AnimatePresence>
         {open && (
-          <div className="absolute left-0 top-[26px]">
+          <div className="absolute left-0 top-[27px]">
             <MenuPanel items={items} onClose={() => setOpen(false)} />
           </div>
         )}
@@ -85,16 +76,14 @@ export function MenuBarMenu({
   );
 }
 
-/** right-click menu anywhere on the desktop */
+/** right-click menu on the desktop */
 export function ContextMenu({
   at, items, onClose,
 }: { at: { x: number; y: number } | null; items: MenuItem[]; onClose: () => void }) {
-  const ref = useRef<HTMLDivElement>(null);
-
   // Clamped position is derived from `at`, not mirrored into state.
   const pos = useMemo(() => {
-    if (!at || typeof window === "undefined") return null;
-    const w = 212, h = items.length * 27 + 12;
+    if (!at) return null;
+    const w = 228, h = items.length * 28 + 14;
     return {
       x: Math.min(at.x, window.innerWidth - w - 8),
       y: Math.min(at.y, window.innerHeight - h - 8),
@@ -115,7 +104,7 @@ export function ContextMenu({
   return (
     <AnimatePresence>
       {pos && (
-        <div ref={ref} className="fixed z-[2000]" style={{ left: pos.x, top: pos.y }}>
+        <div className="fixed z-[2000]" style={{ left: pos.x, top: pos.y }}>
           <MenuPanel items={items} onClose={onClose} />
         </div>
       )}

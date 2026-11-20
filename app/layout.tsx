@@ -1,56 +1,76 @@
-import type { Metadata } from "next";
-import { Archivo, Instrument_Serif, JetBrains_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { ThemeProvider } from "next-themes";
+import { profile } from "@/lib/content";
+import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
-const archivo = Archivo({
-  variable: "--font-archivo",
-  subsets: ["latin"],
-  weight: ["400", "600", "700", "800", "900"],
-});
-const serif = Instrument_Serif({
-  variable: "--font-serif",
-  subsets: ["latin"],
-  weight: "400",
-  style: ["italic", "normal"],
-});
-const mono = JetBrains_Mono({
-  variable: "--font-mono",
-  subsets: ["latin"],
-  weight: ["300", "400", "500"],
-});
-
+const TITLE = "Saurabh Kashyap · Software Engineer";
 const DESCRIPTION =
-  "Ghost OS. Backend engineer in Boston building Java and Spring Boot services, " +
-  "Kafka pipelines, and AWS infrastructure as code.";
+  "Software engineer in Boston. I build backends, and the tools that help people " +
+  "understand them, like repo-sensei, a search engine for your whole codebase.";
 
 export const metadata: Metadata = {
-  // metadataBase resolves the relative og:image to an absolute URL, which every
-  // link unfurler requires — LinkedIn, Slack, WhatsApp and iMessage all refuse a
-  // relative path and fall back to a bare grey card.
-  metadataBase: new URL("https://ghost-os-pied.vercel.app"),
-  title: "Saurabh Kashyap — Backend Software Engineer",
+  // Unfurlers (LinkedIn, Slack, iMessage) need absolute image URLs.
+  metadataBase: new URL(SITE_URL),
+  title: TITLE,
   description: DESCRIPTION,
+  alternates: { canonical: "/" },
   openGraph: {
-    title: "Saurabh Kashyap — Backend Software Engineer",
+    title: TITLE,
     description: DESCRIPTION,
-    url: "https://ghost-os-pied.vercel.app",
-    siteName: "Ghost OS",
-    type: "website",
-    images: [{ url: "/og.png", width: 1200, height: 630, alt: "Ghost OS desktop" }],
+    url: "/",
+    siteName: profile.name,
+    type: "profile",
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "Saurabh Kashyap, software engineer in Boston" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Saurabh Kashyap — Backend Software Engineer",
+    title: TITLE,
     description: DESCRIPTION,
     images: ["/og.png"],
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0d1117" },
+  ],
+};
+
+const person = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: profile.name,
+  url: SITE_URL,
+  jobTitle: "Software Engineer",
+  email: `mailto:${profile.email}`,
+  address: { "@type": "PostalAddress", addressLocality: "Boston", addressRegion: "MA", addressCountry: "US" },
+  alumniOf: { "@type": "CollegeOrUniversity", name: "Northeastern University" },
+  sameAs: [profile.linkedin, profile.github, "https://reposensei.com"],
+};
+
+/* Runs before first paint. `js` lets CSS hold animations until they're on
+   screen; `data-booted` skips the boot screen after the first visit. */
+const early =
+  "document.documentElement.classList.add('js');" +
+  "try{if(sessionStorage.getItem('booted'))document.documentElement.dataset.booted='1';" +
+  "else sessionStorage.setItem('booted','1')}catch(e){}";
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body className={`${archivo.variable} ${serif.variable} ${mono.variable} antialiased`}>
-        {children}
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: early }} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(person) }}
+        />
+      </head>
+      <body>
+        <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem disableTransitionOnChange>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
