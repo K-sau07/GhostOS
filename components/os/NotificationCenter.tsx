@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import { useOS } from "@/lib/store";
-import { launch } from "@/lib/actions";
+import { showSection } from "@/lib/actions";
 import { QuoteWidget, GitHubWidget, LeetCodeWidget, useNow, fmtDate, fmtTime } from "./Widgets";
 
 /** The panel behind the menu-bar clock: today, the quote, and the live widgets. */
@@ -32,7 +32,7 @@ export default function NotificationCenter() {
           <GitHubWidget compact />
           <LeetCodeWidget />
           <button
-            onClick={() => { setNc(false); launch("activity"); }}
+            onClick={() => { setNc(false); showSection("activity"); }}
             className="w-full rounded-[12px] border border-line bg-bg py-2.5 font-mono text-[11px] uppercase tracking-[1.6px]
                        text-muted transition-colors hover:text-fg"
           >

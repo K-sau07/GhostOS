@@ -1,10 +1,10 @@
 import ThemeToggle from "./ThemeToggle";
 
 const NAV = [
-  { label: "about", href: "#win-about" },
-  { label: "sensei", href: "#win-sensei" },
-  { label: "activity", href: "#win-activity" },
-  { label: "projects", href: "#win-projects" },
+  { label: "about", href: "#sec-overview" },
+  { label: "sensei", href: "#sec-sensei" },
+  { label: "work", href: "#sec-experience" },
+  { label: "projects", href: "#sec-projects" },
   { label: "résumé", href: "/resume.pdf" },
 ];
 

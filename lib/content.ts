@@ -160,3 +160,65 @@ export const earlier: Earlier[] = [
     stack: "Java · WebSocket", repo: "https://github.com/K-sau07/Syncpoll",
   },
 ];
+
+/* ── the rest of the settings window ─────────────────────────────────────── */
+
+export interface Role {
+  title: string;
+  /** the current employer is described, never named */
+  org: string;
+  where: string;
+  when: string;
+  bullets: string[];
+  stack: string;
+}
+
+export const experience: Role[] = [
+  {
+    title: "Software Engineer",
+    org: "Enterprise workflow platform",
+    where: "Massachusetts",
+    when: "Feb 2026 to now",
+    bullets: [
+      "Moved the workflow microservices behind Spring Cloud Gateway, so every client has one consistent way in.",
+      "Nightly workflow sync with Spring Batch and S3: parallel chunks, validation, and errors that skip a record instead of failing the run.",
+      "Redis cache-aside reads and TTL tuning, so reporting stops asking MySQL the same question twice.",
+      "Composite indexes and query rewrites behind the reporting dashboards.",
+      "Centralized ELK logging and Kibana alerts across the services with QA and DevOps.",
+    ],
+    stack: "Java · Spring Boot · Spring Cloud Gateway · Spring Batch · Redis · S3 · MySQL · ELK",
+  },
+  {
+    title: "Software Development Engineer",
+    org: "Bhardwaj Tech IT Solutions",
+    where: "Gurugram, India",
+    when: "Mar 2022 to Jul 2024",
+    bullets: [
+      "Java and Spring Boot REST APIs for SMC's mutual fund platform: fund discovery, order placement and transaction tracking.",
+      "Scheduled jobs that check BSE StAR MF payment status and move pending orders forward.",
+      "Made fund search fast with Redis caching, SQL tuning and connection pooling.",
+      "Spring Batch reconciliation with S3 and OpenSearch that flags orders that don't match.",
+      "React dashboards for fund discovery, and order flows for SIP, SWP, STP, lump sum and redemption.",
+    ],
+    stack: "Java · Spring Boot · Spring Batch · React · Redis · S3 · OpenSearch · SQL",
+  },
+];
+
+export const skills: [string, string[]][] = [
+  ["Languages", ["Java", "Python", "SQL", "JavaScript", "TypeScript"]],
+  ["Backend & AI", ["Spring Boot", "Spring Batch", "Spring Cloud Gateway", "Spring Data JPA", "FastAPI", "Spring AI", "RAG", "MCP"]],
+  ["Cloud & data", ["AWS", "Terraform", "Docker", "PostgreSQL", "MySQL", "Redis", "pgvector", "OpenSearch", "Kafka"]],
+  ["Frontend", ["React", "Next.js", "HTML/CSS"]],
+  ["Practice", ["System design", "Low-level design", "SOLID", "Design patterns", "JUnit", "Mockito", "CI/CD", "GitHub Actions", "ELK"]],
+];
+
+export const education = [
+  { school: "Northeastern University", degree: "M.S. Computer Software Engineering", where: "Boston", when: "May 2026", note: "GPA 3.75" },
+  { school: "Guru Gobind Singh Indraprastha University", degree: "B.Tech Computer Science", where: "Delhi", when: "Jul 2023", note: "GPA 3.5" },
+];
+
+export const certifications = [
+  "AWS Certified Solutions Architect",
+  "Spring Professional",
+  "Claude Certified Architect",
+];

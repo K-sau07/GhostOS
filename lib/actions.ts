@@ -1,4 +1,4 @@
-import { useOS, type WinId } from "./store";
+import { useOS, type WinId, type SectionId } from "./store";
 import { profile } from "./content";
 
 const desktop = () => window.matchMedia("(min-width: 1024px)").matches;
@@ -14,11 +14,27 @@ export function launch(id: WinId) {
   useOS.getState().open(id);
 }
 
-/** Bring up the projects window with one card in view. */
+/** Open the settings window at one sidebar section. On a phone, scroll to it. */
+export function showSection(id: SectionId) {
+  if (!desktop()) {
+    document.getElementById(`sec-${id}`)?.scrollIntoView({ behavior: "smooth" });
+    return;
+  }
+  useOS.getState().setSection(id);
+  useOS.getState().open("settings");
+}
+
+/** Bring up the projects section with one card in view. */
 export function showCard(card: string) {
-  launch("projects");
+  showSection("projects");
   requestAnimationFrame(() =>
     document.getElementById(`card-${card}`)?.scrollIntoView({ block: "start", behavior: "smooth" }));
+}
+
+/** A project's live site, in the browser window. */
+export function browse(project: string) {
+  useOS.getState().setPage(project);
+  launch("browser");
 }
 
 export const openUrl = (href: string) =>

@@ -1,16 +1,22 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { m, AnimatePresence } from "framer-motion";
-import { useOS, WINDOWS, type WinId } from "@/lib/store";
-import { launch, openUrl, showCard } from "@/lib/actions";
+import { useOS, WINDOWS, SECTIONS, type WinId } from "@/lib/store";
+import { launch, openUrl, showCard, showSection, browse } from "@/lib/actions";
 import { running, earlier, profile, sensei } from "@/lib/content";
 import { leetcodeUrl } from "@/lib/live-types";
 
 interface Hit { key: string; title: string; kind: string; words: string; run: () => void }
 
 const POOL: Hit[] = [
-  ...(Object.keys(WINDOWS) as WinId[]).map((id) => ({
+  ...SECTIONS.map((s) => ({
+    key: `s-${s.id}`, title: s.label, kind: "about", words: s.id, run: () => showSection(s.id),
+  })),
+  ...(["live", "shell", "resume"] as WinId[]).map((id) => ({
     key: `w-${id}`, title: WINDOWS[id].title, kind: "window", words: id, run: () => launch(id),
+  })),
+  ...running.filter((p) => p.id !== "ghostos").map((p) => ({
+    key: `b-${p.id}`, title: `${p.name} in Safari`, kind: "live site", words: `${p.live} browse preview`, run: () => browse(p.id),
   })),
   ...[...running, ...earlier].map((p) => ({
     key: `p-${p.id}`, title: p.name, kind: p.label.toLowerCase(),

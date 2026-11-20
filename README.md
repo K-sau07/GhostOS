@@ -22,12 +22,15 @@ Light and dark both follow the OS, with a toggle in the menu bar.
 
 | | |
 |:--|:--|
-| `about` | who, what, and three facts under a hairline |
-| `repo-sensei` | the README card, rebuilt: the question types itself, the trace draws down seven hops, citation chips light the rows they cite, replay |
-| `activity` | quote of the day, my GitHub contributions and LeetCode, live, and this site's latest commits |
-| `projects` | six running projects, each with one small animated motif, then four from before |
-| `shell` | `neofetch`, `ls`, `cat <project>`, `leetcode`, `contributions`, `quote`, `git log`, `open <window>`, `mission` |
+| `Saurabh Kashyap` | About, shaped like System Settings: a sidebar with Overview, repo-sensei, Experience, Projects, Skills, Education, Activity and Contact |
+| `live.app` | a coverflow of the deployed projects |
+| `safari` | the live sites themselves, in tabs |
+| `shell` | `neofetch`, `ls`, `cat <project>`, `leetcode`, `contributions`, `quote`, `git log`, `open <name>`, `mission` |
 | `résumé.pdf` | the PDF, in a window |
+
+The desktop has a wallpaper, icons down the left, and live widgets down the right: the quote
+of the day, GitHub contributions and LeetCode. The boot is a login: my picture, my name
+flashing in, then a zoom into the desktop.
 
 Every window is in the server-rendered HTML. The desktop decides which ones float where;
 without JavaScript, or on a phone, the same windows stack into one page. The boot plays

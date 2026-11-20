@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useOS, frontmost, WINDOWS, type WinId } from "@/lib/store";
-import { launch, openUrl } from "@/lib/actions";
+import { launch, openUrl, showSection } from "@/lib/actions";
 import { profile, sensei } from "@/lib/content";
 import { MenuBarMenu, type MenuItem } from "./Menus";
 import ThemeToggle, { useToggleTheme } from "./ThemeToggle";
@@ -46,16 +46,18 @@ export default function MenuBar() {
 
   const MENUS: Record<string, MenuItem[]> = {
     "Ghost OS": [
-      { label: "About Saurabh", onSelect: () => launch("about") },
-      { label: "repo-sensei", onSelect: () => launch("sensei") },
+      { label: "About Saurabh", onSelect: () => showSection("overview") },
+      { label: "repo-sensei", onSelect: () => showSection("sensei") },
+      { label: "Experience", onSelect: () => showSection("experience") },
       { sep: true },
       { label: "GitHub ↗", onSelect: () => openUrl(profile.github) },
       { label: "LinkedIn ↗", onSelect: () => openUrl(profile.linkedin) },
       { label: "reposensei.com ↗", onSelect: () => openUrl(sensei.href) },
     ],
     File: [
-      { label: "Open Projects", onSelect: () => launch("projects") },
-      { label: "Open Activity", onSelect: () => launch("activity") },
+      { label: "Projects", onSelect: () => showSection("projects") },
+      { label: "Open live.app", onSelect: () => launch("live") },
+      { label: "Activity", onSelect: () => showSection("activity") },
       { label: "Open Shell", onSelect: () => launch("shell") },
       { label: "Open Résumé", onSelect: () => launch("resume") },
       { sep: true },

@@ -4,15 +4,28 @@ import { create } from "zustand";
     byte, so the content is readable without JavaScript; the store only decides
     which ones the desktop shows and where. */
 export const WINDOWS = {
-  about:    { title: "about" },
-  sensei:   { title: "repo-sensei" },
-  activity: { title: "activity" },
-  projects: { title: "projects" },
+  settings: { title: "Saurabh Kashyap" },
+  live:     { title: "live.app" },
+  browser:  { title: "safari" },
   shell:    { title: "shell" },
   resume:   { title: "résumé.pdf" },
 } as const;
 
 export type WinId = keyof typeof WINDOWS;
+
+/** The settings window's sidebar, in order. */
+export const SECTIONS = [
+  { id: "overview",   label: "Overview" },
+  { id: "sensei",     label: "repo-sensei" },
+  { id: "experience", label: "Experience" },
+  { id: "projects",   label: "Projects" },
+  { id: "skills",     label: "Skills" },
+  { id: "education",  label: "Education" },
+  { id: "activity",   label: "Activity" },
+  { id: "contact",    label: "Contact" },
+] as const;
+
+export type SectionId = (typeof SECTIONS)[number]["id"];
 
 export interface Geo { x: number; y: number; w: number; h: number }
 
@@ -37,6 +50,10 @@ interface OS {
   mission: boolean;
   /** where a dragged window would land if dropped now */
   snap: Snap;
+  /** which sidebar section the settings window shows */
+  section: SectionId;
+  /** which project's live site the browser window shows */
+  page: string;
 
   open: (id: WinId) => void;
   close: (id: WinId) => void;
@@ -48,6 +65,8 @@ interface OS {
   setNc: (v: boolean) => void;
   setMission: (v: boolean) => void;
   setSnap: (v: Snap) => void;
+  setSection: (v: SectionId) => void;
+  setPage: (v: string) => void;
   /** bring the next open window to the front, like ⌘` */
   cycle: () => void;
 }
@@ -57,18 +76,19 @@ const closed: WinState = { open: false, min: false, max: false, z: 10, geo: null
 export const useOS = create<OS>((set) => ({
   // Same on server and client, so the first paint and hydration agree.
   wins: {
-    about:    { ...closed, open: true, z: 11 },
-    sensei:   { ...closed, open: true, z: 12 },
-    activity: closed,
-    projects: closed,
+    settings: { ...closed, open: true, z: 11 },
+    live:     closed,
+    browser:  closed,
     shell:    closed,
     resume:   closed,
   },
-  topZ: 12,
+  topZ: 11,
   spotlight: false,
   nc: false,
   mission: false,
   snap: null,
+  section: "overview",
+  page: "openlens",
 
   open: (id) =>
     set((s) => ({
@@ -99,6 +119,8 @@ export const useOS = create<OS>((set) => ({
   setNc: (v) => set({ nc: v }),
   setMission: (v) => set({ mission: v, nc: false }),
   setSnap: (v) => set((s) => (s.snap === v ? s : { snap: v })),
+  setSection: (v) => set({ section: v }),
+  setPage: (v) => set({ page: v }),
 
   cycle: () =>
     set((s) => {

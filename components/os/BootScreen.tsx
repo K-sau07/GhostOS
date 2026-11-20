@@ -1,29 +1,22 @@
-import { running, earlier, sensei } from "@/lib/content";
-
-const LINES = [
-  "reading about.md ............ ok",
-  `indexing projects ........... ${running.length} running, ${earlier.length} before`,
-  `tracing ft-login ............ ${sensei.hops.length} hops`,
-  "starting window server ...... ok",
-];
+import { profile } from "@/lib/content";
 
 /** Plays once per session on the desktop, in CSS only, so it never blocks the
     page underneath and costs nothing without JavaScript. */
 export default function BootScreen() {
   return (
     <div className="boot" aria-hidden>
-      <div className="w-[340px]">
-        <div className="font-serif text-[34px] leading-none">Ghost OS</div>
-        <div className="mt-7 space-y-1.5">
-          {LINES.map((l, i) => (
-            <div key={l} className="boot-line whitespace-pre font-mono text-[11px] text-muted"
-                 style={{ "--d": `${0.12 + i * 0.2}s` }}>
-              {l}
-            </div>
+      <div className="boot-card flex flex-col items-center text-center">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/avatar.webp" alt="" width={112} height={112}
+             className="boot-pic h-[112px] w-[112px] rounded-full border border-line object-cover" />
+        <div className="mt-7 font-serif text-[52px] leading-none">
+          {profile.name.split("").map((ch, i) => (
+            <span key={i} className="boot-ch" style={{ "--i": i }}>{ch}</span>
           ))}
         </div>
-        <div className="mt-6 h-px bg-line">
-          <div className="boot-bar h-px bg-accent" />
+        <div className="boot-sub label mt-4">{profile.city}<span className="dot mx-2.5" />{profile.role}</div>
+        <div className="mt-8 h-[3px] w-[220px] overflow-hidden rounded-full bg-line/70">
+          <div className="boot-bar h-full rounded-full bg-accent" />
         </div>
       </div>
     </div>

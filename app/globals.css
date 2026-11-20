@@ -17,6 +17,7 @@
   --l-service: #1a7f37;
   --l-db: #cf222e;
   --shadow: 0 1px 0 rgba(31, 35, 40, .04), 0 12px 32px -12px rgba(31, 35, 40, .16);
+  --wall: url(/wallpaper-light.webp);
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
@@ -34,6 +35,7 @@
     --l-service: #7ee787;
     --l-db: #ff7b72;
     --shadow: 0 16px 40px -16px rgba(1, 4, 9, .85);
+    --wall: url(/wallpaper-dark.webp);
     color-scheme: dark;
   }
 }
@@ -51,6 +53,7 @@
   --l-service: #7ee787;
   --l-db: #ff7b72;
   --shadow: 0 16px 40px -16px rgba(1, 4, 9, .85);
+  --wall: url(/wallpaper-dark.webp);
   color-scheme: dark;
 }
 
@@ -137,24 +140,21 @@
   .win[data-max="true"] {
     --x: 0px; --y: 30px; --w: 100vw; --h: calc(100vh - 30px - var(--dock-room));
   }
-  .win-about { --x: var(--edge); --y: 58px; --w: var(--aw); --h: min(640px, calc(100vh - 58px - var(--dock-room))); }
-  .win-sensei {
-    --w: min(860px, calc(100vw - var(--edge) - var(--edge-r) - var(--aw) + 40px));
-    --x: calc(100vw - var(--edge-r) - var(--w));
-    --y: 86px;
-    --h: calc(100vh - 86px - var(--dock-room));
+  /* icons down the left, widgets down the right, the settings window between */
+  .desk { --icons: 108px; --widgets: clamp(300px, 24vw, 360px); }
+  .win-settings {
+    --x: calc(var(--icons) + 8px);
+    --y: 48px;
+    --w: min(1040px, calc(100vw - var(--icons) - var(--widgets) - 56px));
+    --h: min(780px, calc(100vh - 48px - var(--dock-room)));
   }
-  .win-projects {
-    --w: min(1000px, calc(100vw - 96px));
-    --x: calc((100vw - var(--w)) / 2);
-    --y: 50px;
-    --h: calc(100vh - 50px - var(--dock-room));
+  .win-live {
+    --w: min(980px, calc(100vw - 96px)); --h: min(640px, calc(100vh - 64px - var(--dock-room)));
+    --x: calc((100vw - var(--w)) / 2); --y: 64px;
   }
-  .win-activity {
-    --w: min(900px, calc(100vw - 96px));
-    --x: calc((100vw - var(--w)) / 2 - 40px);
-    --y: 56px;
-    --h: min(820px, calc(100vh - 56px - var(--dock-room)));
+  .win-browser {
+    --w: min(1120px, calc(100vw - 80px)); --h: calc(100vh - 42px - var(--dock-room));
+    --x: calc((100vw - var(--w)) / 2 + 24px); --y: 42px;
   }
   .win-shell { --w: 700px; --h: 460px; --x: calc(50vw - 250px); --y: max(60px, calc(50vh - 260px)); }
   .win-resume {
@@ -162,12 +162,18 @@
     --x: calc((100vw - var(--w)) / 2 + 60px); --y: 44px;
   }
 
-  /* the quote widget sits on the wallpaper when there's room under the windows */
-  .desk-quote { position: absolute; left: var(--edge); bottom: 22px; width: min(380px, calc(50vw - 340px)); }
-  @media (max-height: 959px) { .desk-quote { display: none; } }
+  .desk-widgets {
+    position: absolute; right: 18px; top: 44px; width: var(--widgets);
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  @media (max-height: 839px) { .desk-widgets .w-leetcode { display: none; } }
+  @media (max-width: 1199.98px) {
+    .desk { --widgets: 0px; }
+    .desk-widgets { display: none; }
+  }
 
-  /* the boot plays once per session, then the windows rise in behind it */
-  html:not([data-booted]) .desk .rise { animation-delay: calc(var(--d, 0s) + 1.45s); }
+  .wallpaper { background: var(--wall) center / cover no-repeat; }
+
 }
 
 /* phones and small tablets: the windows stack into one readable page */
@@ -176,24 +182,39 @@
   .win[data-lg-only="true"] { display: none; }
 }
 
-/* ── boot ───────────────────────────────────────────────── */
+/* ── boot ───────────────────────────────────────────────────
+   Like a Mac login: the picture, the name flashing in letter by letter, a
+   progress hairline, then the whole card zooms through into the desktop. */
 .boot { display: none; }
 @media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
   html:not([data-booted]) .boot {
     position: fixed; inset: 0; z-index: 9000;
     display: grid; place-items: center;
-    background: var(--bg);
-    animation: boot-out .45s ease 1.25s forwards;
+    background: var(--bg) var(--wall) center / cover no-repeat;
+    animation: boot-out .5s ease 2.15s forwards;
   }
-  .boot-line { opacity: 0; animation: rise .3s ease both; animation-delay: var(--d); }
-  .boot-bar { transform-origin: left; animation: boot-bar 1.05s cubic-bezier(.4, 0, .2, 1) .1s both; }
-}
-/* the screensaver's dot grid drifts slowly */
-@keyframes drift { to { background-position: 220px 110px; } }
-.saver-grid { animation: drift 40s linear infinite; }
+  .boot-card { animation: boot-zoom .65s cubic-bezier(.6, 0, .35, 1) 1.95s forwards; }
+  .boot-pic { animation: boot-pop .7s cubic-bezier(.2, .7, .2, 1) both, boot-ring 1.4s ease-out .5s both; }
+  .boot-ch { display: inline-block; white-space: pre; animation: boot-flash .7s ease both; animation-delay: calc(.4s + var(--i) * .045s); }
+  .boot-sub { animation: rise .5s ease 1.2s both; }
+  .boot-bar { transform-origin: left; animation: boot-bar 1.6s cubic-bezier(.4, 0, .2, 1) .25s both; }
 
+  /* windows rise in once the desktop is showing */
+  html:not([data-booted]) .desk .rise { animation-delay: calc(var(--d, 0s) + 2.3s); }
+}
 @keyframes boot-out { to { opacity: 0; visibility: hidden; } }
 @keyframes boot-bar { from { transform: scaleX(0); } }
+@keyframes boot-zoom { to { transform: scale(1.7); opacity: 0; } }
+@keyframes boot-pop { from { transform: scale(.82); opacity: 0; } }
+@keyframes boot-ring {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 55%, transparent); }
+  100% { box-shadow: 0 0 0 22px color-mix(in srgb, var(--accent) 0%, transparent); }
+}
+@keyframes boot-flash {
+  0% { opacity: 0; filter: blur(8px); transform: translateY(8px); }
+  55% { opacity: 1; filter: blur(0); color: var(--accent); }
+  100% { opacity: 1; transform: none; }
+}
 
 /* ── repo-sensei ────────────────────────────────────────────
    Base styles are the finished frame. The animations run from the empty state

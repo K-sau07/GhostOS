@@ -1,4 +1,6 @@
+"use client";
 import { running, earlier, napNote, profile } from "@/lib/content";
+import { browse, launch } from "@/lib/actions";
 import MotifArt from "./Motifs";
 
 const ext = { target: "_blank", rel: "noreferrer" } as const;
@@ -27,6 +29,10 @@ export default function Projects() {
     <div className="@container px-5 py-8 @[640px]:px-9">
       <section aria-labelledby="also-running">
         <Section title="Also running" id="also-running" />
+        <button onClick={() => launch("live")}
+                className="link-u mt-3 font-mono text-[12px] text-accent max-lg:hidden">
+          see them all running in live.app ↗
+        </button>
         <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-4 @[720px]:grid-cols-2">
           {running.map((p) => (
             <article key={p.id} id={`card-${p.id}`}
@@ -42,6 +48,9 @@ export default function Projects() {
                               font-mono text-[12px] text-muted">
                 <span>{p.stack}</span>
                 <span className="ml-auto flex shrink-0 gap-4">
+                  {p.id !== "ghostos" && (
+                    <button onClick={() => browse(p.id)} className="link-u max-lg:hidden">preview</button>
+                  )}
                   <a href={p.repo} {...ext} className="link-u" aria-label={`${p.name} source code`}>code ↗</a>
                   <a href={p.live} {...ext} className="link-u text-accent" aria-label={`${p.name} live demo`}>live ↗</a>
                 </span>

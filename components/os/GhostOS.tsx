@@ -6,12 +6,11 @@ import Dock from "./Dock";
 import Window from "./Window";
 import Spotlight from "./Spotlight";
 import Motion from "./Motion";
-import About from "./About";
-import Sensei from "./Sensei";
-import Projects from "./Projects";
+import Settings from "./Settings";
+import LiveApp from "./LiveApp";
+import SafariApp from "./SafariApp";
 import TerminalApp from "./TerminalApp";
 import Resume from "./Resume";
-import Activity from "./Widgets";
 import NotificationCenter from "./NotificationCenter";
 import Screensaver from "./Screensaver";
 import { Keys, MissionControl, SnapPreview } from "./Overlays";
@@ -30,17 +29,15 @@ export default function GhostOS({ live }: { live: LiveData }) {
     <Motion>
       <div className="desk">
         <BootScreen />
-        <div aria-hidden className="dots absolute inset-0 max-lg:hidden"
-             style={{ "--gx": "50%", "--gy": "42%" }} />
+        <div aria-hidden className="wallpaper absolute inset-0 max-lg:hidden" />
         <MenuBar />
         <MobileBar />
         <Desktop />
 
         <main className="pb-24 lg:contents">
-          <Window id="about" delay={0.05}><About /></Window>
-          <Window id="sensei" delay={0.2}><Sensei /></Window>
-          <Window id="activity"><Activity /></Window>
-          <Window id="projects"><Projects /></Window>
+          <Window id="settings" delay={0.1}><Settings /></Window>
+          <Window id="live" lgOnly><LiveApp /></Window>
+          <Window id="browser" lgOnly><SafariApp /></Window>
           <Window id="shell" lgOnly><TerminalApp /></Window>
           <Window id="resume" lgOnly><Resume /></Window>
         </main>

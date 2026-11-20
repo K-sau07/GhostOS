@@ -2,14 +2,16 @@
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "next-themes";
 import { profile, running, earlier, sensei } from "@/lib/content";
-import { useOS, WINDOWS, type WinId } from "@/lib/store";
-import { launch } from "@/lib/actions";
+import { useOS, WINDOWS, SECTIONS, type WinId } from "@/lib/store";
+import { launch, showSection } from "@/lib/actions";
 import { useLive } from "@/lib/live-context";
 import { leetcodeUrl, GITHUB_USER } from "@/lib/live-types";
 import { QUOTES } from "@/lib/quotes";
 import gitlog from "@/lib/generated/gitlog.json";
 
 type Line = { t: "in" | "out"; v: string };
+
+const OPENABLE = ["about", ...SECTIONS.filter((x) => x.id !== "overview").map((x) => x.id), "live", "safari", "shell", "resume"];
 
 const HELP: [string, string][] = [
   ["whoami", "who this is"],
@@ -21,7 +23,7 @@ const HELP: [string, string][] = [
   ["contributions", "GitHub, the last year"],
   ["quote", "today's quote"],
   ["git log", "this site's latest commits"],
-  ["open <window>", Object.keys(WINDOWS).join(", ")],
+  ["open <name>", "about, experience, projects, live, shell, resume, ..."],
   ["mission", "Mission Control"],
   ["theme light|dark", "switch the theme"],
   ["contact", "how to reach me"],
@@ -46,7 +48,7 @@ const GHOST = [
 /** what each command's argument can complete to */
 const ARGS: Record<string, string[]> = {
   cat: all.map((p) => p.id),
-  open: Object.keys(WINDOWS),
+  open: OPENABLE,
   theme: ["light", "dark"],
   git: ["log"],
 };
@@ -149,9 +151,11 @@ export default function TerminalApp() {
         } else out.push("git: only `git log` works here");
         break;
       case "open": {
-        const id = (arg === "repo-sensei" ? "sensei" : arg === "résumé" ? "resume" : arg) as WinId;
-        if (id in WINDOWS) { launch(id); out.push(`opening ${WINDOWS[id].title}`); }
-        else out.push(`open: ${arg || "?"}: no such window. try ${Object.keys(WINDOWS).join(", ")}`);
+        const sec = SECTIONS.find((x) => x.id === arg || x.label.toLowerCase() === arg || (arg === "about" && x.id === "overview"));
+        const id = (arg === "safari" ? "browser" : arg === "résumé" ? "resume" : arg.replace(".app", "")) as WinId;
+        if (sec) { showSection(sec.id); out.push(`opening ${sec.label}`); }
+        else if (id in WINDOWS) { launch(id); out.push(`opening ${WINDOWS[id].title}`); }
+        else out.push(`open: ${arg || "?"}: try ${OPENABLE.join(", ")}`);
         break;
       }
       case "mission": useOS.getState().setMission(true); out.push("mission control. esc to leave."); break;
