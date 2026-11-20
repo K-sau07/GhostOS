@@ -5,25 +5,31 @@ import { launch, openUrl } from "@/lib/actions";
 import { profile, sensei } from "@/lib/content";
 import { MenuBarMenu, type MenuItem } from "./Menus";
 import ThemeToggle, { useToggleTheme } from "./ThemeToggle";
+import { useNow, fmtTime } from "./Widgets";
 
+/** The clock opens Notification Center, as on a Mac. */
 function Clock() {
-  // Server and client disagree by definition; the node opts out of the check.
-  const [now, setNow] = useState(() => new Date());
-  useEffect(() => {
-    const t = setInterval(() => setNow(new Date()), 20_000);
-    return () => clearInterval(t);
-  }, []);
+  const now = useNow(20_000);
+  const { nc, setNc } = useOS();
   return (
-    <span suppressHydrationWarning className="font-mono text-[11.5px] tabular-nums text-muted">
-      {now.toLocaleDateString("en-US", { weekday: "short", day: "numeric", month: "short" })}
-      {"  ·  "}
-      {now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
-    </span>
+    <button
+      onClick={() => setNc(!nc)}
+      aria-label="Notification Center"
+      aria-expanded={nc}
+      className={`rounded-md px-2 py-0.5 font-mono text-[11.5px] tabular-nums transition-colors
+                  ${nc ? "bg-panel text-fg" : "text-muted hover:text-fg"}`}
+    >
+      <span suppressHydrationWarning>
+        {now.toLocaleDateString("en-US", { weekday: "short", day: "numeric", month: "short" })}
+        {"  ·  "}
+        {fmtTime(now)}
+      </span>
+    </button>
   );
 }
 
 export default function MenuBar() {
-  const { wins, setSpotlight, close, minimize, toggleMax } = useOS();
+  const { wins, setSpotlight, close, minimize, toggleMax, mission, setMission, cycle, setNc } = useOS();
   const toggleTheme = useToggleTheme();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const top = frontmost(wins);
@@ -49,12 +55,15 @@ export default function MenuBar() {
     ],
     File: [
       { label: "Open Projects", onSelect: () => launch("projects") },
+      { label: "Open Activity", onSelect: () => launch("activity") },
       { label: "Open Shell", onSelect: () => launch("shell") },
       { label: "Open Résumé", onSelect: () => launch("resume") },
       { sep: true },
       { label: "Close Window", disabled: !top, onSelect: () => top && close(top) },
     ],
     View: [
+      { label: "Mission Control", shortcut: "⌥↑", onSelect: () => setMission(!mission) },
+      { label: "Notification Center", onSelect: () => setNc(true) },
       { label: "Light / Dark", onSelect: toggleTheme },
       { label: "Zoom Window", disabled: !top, onSelect: () => top && toggleMax(top) },
       { sep: true },
@@ -62,6 +71,8 @@ export default function MenuBar() {
     ],
     Window: [
       { label: "Minimize", disabled: !top, onSelect: () => top && minimize(top) },
+      { label: "Next Window", shortcut: "⌥`", onSelect: cycle },
+      { label: "Snap: drag a window to an edge", disabled: true },
       { sep: true },
       ...(shown.length
         ? shown.map((id) => ({ label: WINDOWS[id].title, onSelect: () => launch(id) }))
@@ -100,6 +111,13 @@ export default function MenuBar() {
         <button onClick={() => setSpotlight(true)}
                 className="font-mono text-[11.5px] text-muted transition-colors hover:text-fg">
           ⌘K search
+        </button>
+        <button onClick={() => setMission(!mission)} aria-label="Mission Control" title="Mission Control (⌥↑)"
+                className="grid h-6 w-6 place-items-center text-muted transition-colors hover:text-fg">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden>
+            <rect x="1.5" y="2.5" width="5.5" height="4.5" rx="1" /><rect x="9" y="2.5" width="5.5" height="4.5" rx="1" />
+            <rect x="1.5" y="9" width="5.5" height="4.5" rx="1" /><rect x="9" y="9" width="5.5" height="4.5" rx="1" />
+          </svg>
         </button>
         <ThemeToggle />
         <Clock />

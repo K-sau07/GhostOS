@@ -2,29 +2,62 @@
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "next-themes";
 import { profile, running, earlier, sensei } from "@/lib/content";
-import { WINDOWS, type WinId } from "@/lib/store";
+import { useOS, WINDOWS, type WinId } from "@/lib/store";
 import { launch } from "@/lib/actions";
+import { useLive } from "@/lib/live-context";
+import { leetcodeUrl, GITHUB_USER } from "@/lib/live-types";
+import { QUOTES } from "@/lib/quotes";
+import gitlog from "@/lib/generated/gitlog.json";
 
 type Line = { t: "in" | "out"; v: string };
 
-const HELP = [
-  "whoami            who this is",
-  "ls                what's running, and what came before",
-  "cat <project>     one project, with its links",
-  "sensei            what repo-sensei is, and how it's measured",
-  "open <window>     about, sensei, projects, resume",
-  "contact           how to reach me",
-  "theme light|dark  switch the theme",
-  "clear             clear the screen",
+const HELP: [string, string][] = [
+  ["whoami", "who this is"],
+  ["neofetch", "the system, at a glance"],
+  ["ls", "what's running, and what came before"],
+  ["cat <project>", "one project, with its links"],
+  ["sensei", "what repo-sensei is, and how it's measured"],
+  ["leetcode", "problems solved, live"],
+  ["contributions", "GitHub, the last year"],
+  ["quote", "today's quote"],
+  ["git log", "this site's latest commits"],
+  ["open <window>", Object.keys(WINDOWS).join(", ")],
+  ["mission", "Mission Control"],
+  ["theme light|dark", "switch the theme"],
+  ["contact", "how to reach me"],
+  ["clear", "clear the screen"],
 ];
+const COMMANDS = ["whoami", "neofetch", "ls", "cat", "sensei", "leetcode", "contributions", "quote",
+  "git", "open", "mission", "theme", "contact", "clear", "help", "date"];
 
 const all = [...running, ...earlier];
 const find = (q: string) =>
   all.find((p) => p.id === q || p.name.toLowerCase() === q || p.name.toLowerCase().replace(/\s+/g, "-") === q);
 
+const GHOST = [
+  "   .-'''-.   ",
+  "  /  o o  \\  ",
+  " |    ^    | ",
+  " |  \\___/  | ",
+  " |         | ",
+  " '.^.^.^.^.' ",
+];
+
+/** what each command's argument can complete to */
+const ARGS: Record<string, string[]> = {
+  cat: all.map((p) => p.id),
+  open: Object.keys(WINDOWS),
+  theme: ["light", "dark"],
+  git: ["log"],
+};
+
+const commonPrefix = (xs: string[]) =>
+  xs.reduce((a, b) => { let i = 0; while (i < a.length && a[i] === b[i]) i++; return a.slice(0, i); });
+
 export default function TerminalApp() {
-  const { setTheme } = useTheme();
-  const [lines, setLines] = useState<Line[]>([{ t: "out", v: "ghost shell. type help to begin." }]);
+  const { setTheme, resolvedTheme } = useTheme();
+  const live = useLive();
+  const [lines, setLines] = useState<Line[]>([{ t: "out", v: "ghost shell. type help to begin, tab completes." }]);
   const [v, setV] = useState("");
   const [past, setPast] = useState<string[]>([]);
   const [back, setBack] = useState(-1);
@@ -32,18 +65,41 @@ export default function TerminalApp() {
 
   useEffect(() => { end.current?.scrollIntoView({ block: "end" }); }, [lines]);
 
+  const print = (cmd: string | null, out: string[]) =>
+    setLines((l) => [...l, ...(cmd === null ? [] : [{ t: "in" as const, v: cmd }]), ...out.map((o) => ({ t: "out" as const, v: o }))]);
+
   const run = (raw: string) => {
     const cmd = raw.trim();
     const [head = "", ...rest] = cmd.split(/\s+/);
     const arg = rest.join(" ").toLowerCase();
     const out: string[] = [];
+    const lc = live.leetcode, gh = live.contributions;
 
     switch (head.toLowerCase()) {
       case "": break;
-      case "help": out.push(...HELP); break;
+      case "help": HELP.forEach(([c, d]) => out.push(`${c.padEnd(18)}${d}`)); break;
       case "whoami":
         out.push(`${profile.name}, ${profile.role.toLowerCase()}, ${profile.city}.`, profile.line, profile.open);
         break;
+      case "neofetch": {
+        const up = Math.round(performance.now() / 60000);
+        const info = [
+          "saurabh@ghost-os",
+          "----------------",
+          "OS       Ghost OS (Next.js 16, React 19)",
+          `Host     ${window.location.host}`,
+          `Uptime   ${up} min${up === 1 ? "" : "s"}`,
+          "Shell    ghost shell",
+          `Display  ${window.innerWidth}x${window.innerHeight}, ${resolvedTheme ?? "system"}`,
+          `Stack    ${profile.stack}`,
+          ...(lc ? [`LeetCode ${lc.solved} solved (${lc.easy} easy, ${lc.medium} medium, ${lc.hard} hard)`] : []),
+          ...(gh ? [`GitHub   ${gh.total.toLocaleString("en-US")} contributions in the last year`] : []),
+          `Now      ${profile.now.label}`,
+        ];
+        for (let i = 0; i < Math.max(GHOST.length, info.length); i++)
+          out.push(`${(GHOST[i] ?? "").padEnd(16)}${info[i] ?? ""}`);
+        break;
+      }
       case "ls":
         out.push("running/");
         running.forEach((p) => out.push(`  ${p.id.padEnd(12)}${p.line}`));
@@ -61,12 +117,44 @@ export default function TerminalApp() {
       case "sensei":
         out.push(sensei.pitch, "", sensei.bench, "", ...sensei.links.map((l) => `${l.label.padEnd(18)}${l.href}`));
         break;
+      case "leetcode":
+        if (lc) {
+          const bar = (n: number) => "#".repeat(Math.round((n / Math.max(lc.solved, 1)) * 30)).padEnd(30, ".");
+          out.push(`${lc.solved} problems solved`, "",
+            `easy    ${bar(lc.easy)} ${lc.easy}`, `medium  ${bar(lc.medium)} ${lc.medium}`, `hard    ${bar(lc.hard)} ${lc.hard}`,
+            "", leetcodeUrl);
+        } else out.push(`couldn't reach LeetCode just now. ${leetcodeUrl}`);
+        break;
+      case "contributions":
+        if (gh) {
+          const glyph = " .:*#";
+          const weeks: string[] = [];
+          for (let i = 0; i < gh.days.length; i += 7) weeks.push(gh.days.slice(i, i + 7).map((d) => glyph[d.level] ?? " ").join(""));
+          out.push(`${gh.total.toLocaleString("en-US")} contributions in the last year`, "");
+          for (let r = 0; r < 7; r++) out.push(weeks.slice(-52).map((w) => w[r] ?? " ").join(""));
+          out.push("", `https://github.com/${GITHUB_USER}`);
+        } else out.push(`couldn't reach GitHub just now. https://github.com/${GITHUB_USER}`);
+        break;
+      case "quote": {
+        const q = QUOTES[live.quote] ?? QUOTES[0];
+        out.push(`"${q.text}"`, `  ${q.by}${q.where ? `, ${q.where}` : ""}`);
+        break;
+      }
+      case "date": out.push(new Date().toString()); break;
+      case "git":
+        if (arg === "log" || arg.startsWith("log")) {
+          const log = gitlog as { hash: string; date: string; subject: string }[];
+          if (!log.length) out.push("git: no history in this build");
+          log.slice(0, 10).forEach((c) => out.push(`${c.hash}  ${c.date}  ${c.subject}`));
+        } else out.push("git: only `git log` works here");
+        break;
       case "open": {
         const id = (arg === "repo-sensei" ? "sensei" : arg === "résumé" ? "resume" : arg) as WinId;
         if (id in WINDOWS) { launch(id); out.push(`opening ${WINDOWS[id].title}`); }
-        else out.push(`open: ${arg || "?"}: no such window`);
+        else out.push(`open: ${arg || "?"}: no such window. try ${Object.keys(WINDOWS).join(", ")}`);
         break;
       }
+      case "mission": useOS.getState().setMission(true); out.push("mission control. esc to leave."); break;
       case "contact":
         out.push(profile.email, profile.linkedin, profile.github);
         break;
@@ -76,13 +164,30 @@ export default function TerminalApp() {
         break;
       case "clear": setLines([]); setV(""); setPast((h) => [...h, cmd]); setBack(-1); return;
       case "sudo": out.push("nice try."); break;
+      case "rm": out.push("this is a portfolio, not a production box."); break;
+      case "exit": out.push("there's no leaving. try the dock."); break;
       default: out.push(`${head}: command not found. try help`);
     }
 
-    setLines((l) => [...l, { t: "in", v: cmd }, ...out.map((o) => ({ t: "out" as const, v: o }))]);
+    print(cmd, out);
     if (cmd) setPast((h) => [...h, cmd]);
     setBack(-1);
     setV("");
+  };
+
+  const complete = () => {
+    const parts = v.split(/\s+/);
+    if (parts.length <= 1) {
+      const hits = COMMANDS.filter((c) => c.startsWith(parts[0] ?? ""));
+      if (hits.length === 1) setV(`${hits[0]} `);
+      else if (hits.length > 1) { setV(commonPrefix(hits)); print(null, [hits.join("  ")]); }
+      return;
+    }
+    const [cmd, ...rest] = parts;
+    const pre = rest.join(" ").toLowerCase();
+    const hits = (ARGS[cmd.toLowerCase()] ?? []).filter((a) => a.startsWith(pre));
+    if (hits.length === 1) setV(`${cmd} ${hits[0]}`);
+    else if (hits.length > 1) { setV(`${cmd} ${commonPrefix(hits)}`); print(null, [hits.join("  ")]); }
   };
 
   const recall = (dir: 1 | -1) => {
@@ -93,7 +198,7 @@ export default function TerminalApp() {
   };
 
   return (
-    <div className="h-full overflow-auto p-5 font-mono text-[12.5px] leading-[1.75]"
+    <div className="h-full overflow-auto p-5 font-mono text-[12.5px] leading-[1.7]"
          onClick={(e) => (e.currentTarget.querySelector("input") as HTMLInputElement | null)?.focus()}>
       {lines.map((l, i) => (
         <div key={i} className={l.t === "in" ? "text-fg" : "whitespace-pre-wrap text-muted"}>
@@ -107,8 +212,10 @@ export default function TerminalApp() {
           onChange={(e) => setV(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") run(v);
+            if (e.key === "Tab") { e.preventDefault(); complete(); }
             if (e.key === "ArrowUp") { e.preventDefault(); recall(-1); }
             if (e.key === "ArrowDown") { e.preventDefault(); recall(1); }
+            if (e.key === "l" && e.ctrlKey) { e.preventDefault(); setLines([]); }
           }}
           spellCheck={false} autoComplete="off" aria-label="Shell input"
           className="flex-1 bg-transparent text-fg caret-[var(--accent)] outline-none"

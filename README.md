@@ -7,8 +7,9 @@ My portfolio is an operating system in a browser tab.
 Next.js 16, React 19, TypeScript, Tailwind 4, Framer Motion.
 
 Menu bar with working dropdowns, a dock that magnifies toward the cursor, draggable and
-resizable windows, Spotlight on ⌘K, a right-click menu, and a shell you can type into.
-No UI kit.
+resizable windows that snap to the screen edges, Mission Control (⌥↑), a window switcher
+(⌥\`), Spotlight (⌘K), Notification Center behind the clock, a screensaver after a minute
+idle, a right-click menu, and a shell with tab completion. No UI kit.
 
 ## The look
 
@@ -23,8 +24,9 @@ Light and dark both follow the OS, with a toggle in the menu bar.
 |:--|:--|
 | `about` | who, what, and three facts under a hairline |
 | `repo-sensei` | the README card, rebuilt: the question types itself, the trace draws down seven hops, citation chips light the rows they cite, replay |
+| `activity` | quote of the day, my GitHub contributions and LeetCode, live, and this site's latest commits |
 | `projects` | six running projects, each with one small animated motif, then four from before |
-| `shell` | `help`, `ls`, `cat <project>`, `sensei`, `open <window>`, `theme dark` |
+| `shell` | `neofetch`, `ls`, `cat <project>`, `leetcode`, `contributions`, `quote`, `git log`, `open <window>`, `mission` |
 | `résumé.pdf` | the PDF, in a window |
 
 Every window is in the server-rendered HTML. The desktop decides which ones float where;
@@ -45,6 +47,13 @@ npm run build
 ```
 
 All three run in CI on every push.
+
+## Live numbers
+
+LeetCode and GitHub contributions are fetched on the server and cached for an hour
+(`lib/live.ts`). If either can't be reached, its widget falls back to a link. The quote
+changes daily, from a list of real, attributed quotes in `lib/quotes.ts`. Unique visitors
+are counted by Vercel Web Analytics (no cookies), visible in the Vercel dashboard.
 
 ## Content
 

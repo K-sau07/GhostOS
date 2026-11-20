@@ -4,6 +4,7 @@ import { m, AnimatePresence } from "framer-motion";
 import { useOS, WINDOWS, type WinId } from "@/lib/store";
 import { launch, openUrl, showCard } from "@/lib/actions";
 import { running, earlier, profile, sensei } from "@/lib/content";
+import { leetcodeUrl } from "@/lib/live-types";
 
 interface Hit { key: string; title: string; kind: string; words: string; run: () => void }
 
@@ -15,6 +16,9 @@ const POOL: Hit[] = [
     key: `p-${p.id}`, title: p.name, kind: p.label.toLowerCase(),
     words: `${p.line} ${p.stack}`, run: () => showCard(p.id),
   })),
+  { key: "c-mc", title: "Mission Control", kind: "action", words: "windows overview expose", run: () => useOS.getState().setMission(true) },
+  { key: "c-nc", title: "Notification Center", kind: "action", words: "widgets today quote leetcode github", run: () => useOS.getState().setNc(true) },
+  { key: "l-lc", title: "LeetCode", kind: "link", words: "problems solved dsa", run: () => openUrl(leetcodeUrl) },
   { key: "l-rs", title: "reposensei.com", kind: "link", words: sensei.pitch, run: () => openUrl(sensei.href) },
   { key: "l-gh", title: "GitHub", kind: "link", words: "code source", run: () => openUrl(profile.github) },
   { key: "l-li", title: "LinkedIn", kind: "link", words: "profile", run: () => openUrl(profile.linkedin) },

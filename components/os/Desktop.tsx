@@ -6,6 +6,7 @@ import { profile } from "@/lib/content";
 import { ContextMenu, type MenuItem } from "./Menus";
 import { IconPDF, IconFolder, IconTerminal, IconMail } from "./Icons";
 import { useToggleTheme } from "./ThemeToggle";
+import { QuoteWidget } from "./Widgets";
 
 const ICONS = [
   { label: "résumé.pdf", Icon: IconPDF, run: () => launch("resume") },
@@ -16,7 +17,7 @@ const ICONS = [
 
 /** The wallpaper: a column of icons on the right, and a right-click menu. */
 export default function Desktop() {
-  const { setSpotlight } = useOS();
+  const { setSpotlight, setMission, setNc } = useOS();
   const toggleTheme = useToggleTheme();
   const [sel, setSel] = useState<string | null>(null);
   const [ctx, setCtx] = useState<{ x: number; y: number } | null>(null);
@@ -33,7 +34,10 @@ export default function Desktop() {
     { label: "Open repo-sensei", onSelect: () => launch("sensei") },
     { label: "Open Projects", onSelect: () => launch("projects") },
     { label: "Open Shell", onSelect: () => launch("shell") },
+    { label: "Open Activity", onSelect: () => launch("activity") },
     { sep: true },
+    { label: "Mission Control", shortcut: "⌥↑", onSelect: () => setMission(true) },
+    { label: "Notification Center", onSelect: () => setNc(true) },
     { label: "Spotlight", shortcut: "⌘K", onSelect: () => setSpotlight(true) },
     { label: "Light / Dark", onSelect: toggleTheme },
     { sep: true },
@@ -66,6 +70,9 @@ export default function Desktop() {
             </span>
           </button>
         ))}
+      </div>
+      <div className="desk-quote rise" style={{ "--d": ".5s" }} onClick={(e) => e.stopPropagation()}>
+        <QuoteWidget size="sm" />
       </div>
       <ContextMenu at={ctx} items={items} onClose={closeCtx} />
     </div>

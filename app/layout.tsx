@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { ThemeProvider } from "next-themes";
+import { Analytics } from "@vercel/analytics/next";
 import { profile } from "@/lib/content";
 import { SITE_URL } from "@/lib/site";
 import "./globals.css";
@@ -71,6 +72,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem disableTransitionOnChange>
           {children}
         </ThemeProvider>
+        {/* unique visitors, in the Vercel dashboard under Analytics; no cookies */}
+        <Analytics />
       </body>
     </html>
   );

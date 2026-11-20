@@ -11,6 +11,12 @@ import Sensei from "./Sensei";
 import Projects from "./Projects";
 import TerminalApp from "./TerminalApp";
 import Resume from "./Resume";
+import Activity from "./Widgets";
+import NotificationCenter from "./NotificationCenter";
+import Screensaver from "./Screensaver";
+import { Keys, MissionControl, SnapPreview } from "./Overlays";
+import { LiveProvider } from "@/lib/live-context";
+import type { LiveData } from "@/lib/live-types";
 
 /**
  * The whole site. Every window is in the server-rendered page, so the content
@@ -18,8 +24,9 @@ import Resume from "./Resume";
  * windows float over the wallpaper; below 1024px the same windows stack into
  * one page.
  */
-export default function GhostOS() {
+export default function GhostOS({ live }: { live: LiveData }) {
   return (
+    <LiveProvider value={live}>
     <Motion>
       <div className="desk">
         <BootScreen />
@@ -32,14 +39,21 @@ export default function GhostOS() {
         <main className="pb-24 lg:contents">
           <Window id="about" delay={0.05}><About /></Window>
           <Window id="sensei" delay={0.2}><Sensei /></Window>
+          <Window id="activity"><Activity /></Window>
           <Window id="projects"><Projects /></Window>
           <Window id="shell" lgOnly><TerminalApp /></Window>
           <Window id="resume" lgOnly><Resume /></Window>
         </main>
 
+        <MissionControl />
+        <SnapPreview />
         <Dock />
+        <NotificationCenter />
         <Spotlight />
+        <Screensaver />
+        <Keys />
       </div>
     </Motion>
+    </LiveProvider>
   );
 }

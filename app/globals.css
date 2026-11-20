@@ -130,8 +130,10 @@
     position: absolute;
     left: var(--x); top: var(--y); width: var(--w); height: var(--h);
     display: flex; flex-direction: column;
+    transition: translate .45s cubic-bezier(.2, .7, .2, 1), scale .45s cubic-bezier(.2, .7, .2, 1);
   }
   .win[data-shown="false"] { display: none; }
+  .win[data-mission] > :not(button) { pointer-events: none; }
   .win[data-max="true"] {
     --x: 0px; --y: 30px; --w: 100vw; --h: calc(100vh - 30px - var(--dock-room));
   }
@@ -148,11 +150,21 @@
     --y: 50px;
     --h: calc(100vh - 50px - var(--dock-room));
   }
-  .win-shell { --w: 640px; --h: 400px; --x: calc(50vw - 250px); --y: max(60px, calc(50vh - 260px)); }
+  .win-activity {
+    --w: min(900px, calc(100vw - 96px));
+    --x: calc((100vw - var(--w)) / 2 - 40px);
+    --y: 56px;
+    --h: min(820px, calc(100vh - 56px - var(--dock-room)));
+  }
+  .win-shell { --w: 700px; --h: 460px; --x: calc(50vw - 250px); --y: max(60px, calc(50vh - 260px)); }
   .win-resume {
     --w: min(780px, calc(100vw - 96px)); --h: calc(100vh - 44px - var(--dock-room));
     --x: calc((100vw - var(--w)) / 2 + 60px); --y: 44px;
   }
+
+  /* the quote widget sits on the wallpaper when there's room under the windows */
+  .desk-quote { position: absolute; left: var(--edge); bottom: 22px; width: min(380px, calc(50vw - 340px)); }
+  @media (max-height: 959px) { .desk-quote { display: none; } }
 
   /* the boot plays once per session, then the windows rise in behind it */
   html:not([data-booted]) .desk .rise { animation-delay: calc(var(--d, 0s) + 1.45s); }
@@ -176,6 +188,10 @@
   .boot-line { opacity: 0; animation: rise .3s ease both; animation-delay: var(--d); }
   .boot-bar { transform-origin: left; animation: boot-bar 1.05s cubic-bezier(.4, 0, .2, 1) .1s both; }
 }
+/* the screensaver's dot grid drifts slowly */
+@keyframes drift { to { background-position: 220px 110px; } }
+.saver-grid { animation: drift 40s linear infinite; }
+
 @keyframes boot-out { to { opacity: 0; visibility: hidden; } }
 @keyframes boot-bar { from { transform: scaleX(0); } }
 

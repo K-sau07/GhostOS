@@ -3,19 +3,23 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node scripts/gitlog.mjs",
     "dev": "next dev",
+    "prebuild": "node scripts/gitlog.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "node scripts/gitlog.mjs && tsc --noEmit"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "framer-motion": "^12.23.26",
     "lucide-react": "^0.562.0",
     "next": "16.1.1",
     "next-themes": "^0.4.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "server-only": "^0.0.1",
     "zustand": "^5.0.15"
   },
   "devDependencies": {

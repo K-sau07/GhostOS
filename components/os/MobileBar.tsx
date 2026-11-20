@@ -3,6 +3,7 @@ import ThemeToggle from "./ThemeToggle";
 const NAV = [
   { label: "about", href: "#win-about" },
   { label: "sensei", href: "#win-sensei" },
+  { label: "activity", href: "#win-activity" },
   { label: "projects", href: "#win-projects" },
   { label: "résumé", href: "/resume.pdf" },
 ];
@@ -21,7 +22,7 @@ export default function MobileBar() {
           {NAV.map((n) => (
             <li key={n.label} className="flex-1">
               <a href={n.href}
-                 className="block rounded-[9px] py-2 text-center font-mono text-[10.5px] uppercase tracking-[1.4px]
+                 className="block rounded-[9px] py-2 text-center font-mono text-[10px] uppercase tracking-[1px]
                             text-muted active:bg-panel">
                 {n.label}
               </a>

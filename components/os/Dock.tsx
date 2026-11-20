@@ -10,6 +10,7 @@ type Item = { label: string; win?: WinId; href?: string; sep?: boolean };
 const ITEMS: Item[] = [
   { label: "about", win: "about" },
   { label: "repo-sensei", win: "sensei" },
+  { label: "activity", win: "activity" },
   { label: "projects", win: "projects" },
   { label: "shell", win: "shell" },
   { label: "résumé", win: "resume" },
