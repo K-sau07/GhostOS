@@ -4,11 +4,7 @@ My portfolio is an operating system in a browser tab.
 
 ### → **[ghost-os-pied.vercel.app](https://ghost-os-pied.vercel.app)**
 
-![Next.js](https://img.shields.io/badge/Next.js_16-000000?style=flat-square&logo=nextdotjs&logoColor=white)
-![React](https://img.shields.io/badge/React_19-61DAFB?style=flat-square&logo=react&logoColor=black)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
-![Tailwind](https://img.shields.io/badge/Tailwind_4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
-![Framer](https://img.shields.io/badge/Framer_Motion-0055FF?style=flat-square&logo=framer&logoColor=white)
+Next.js 16, React 19, TypeScript, Tailwind 4, Framer Motion.
 
 Menu bar with working dropdowns, a dock that magnifies toward the cursor, draggable and
 resizable windows, Spotlight on ⌘K, a right-click menu, and a shell you can type into.
