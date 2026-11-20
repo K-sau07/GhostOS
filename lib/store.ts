@@ -1,134 +1,123 @@
 import { create } from "zustand";
 
-export type WinId = string;
+/** Every window the OS knows about. They all exist in the page from the first
+    byte, so the content is readable without JavaScript; the store only decides
+    which ones the desktop shows and where. */
+export const WINDOWS = {
+  about:    { title: "about" },
+  sensei:   { title: "repo-sensei" },
+  activity: { title: "activity" },
+  projects: { title: "projects" },
+  shell:    { title: "shell" },
+  resume:   { title: "résumé.pdf" },
+} as const;
+
+export type WinId = keyof typeof WINDOWS;
+
+export interface Geo { x: number; y: number; w: number; h: number }
+
+export type Snap = "left" | "right" | "max" | null;
 
 export interface WinState {
-  id: WinId;
-  title: string;        // "openlens.app"
-  x: number; y: number;
-  w: number; h: number;
+  open: boolean;
+  min: boolean;
+  max: boolean;
   z: number;
-  minimized: boolean;
-  maximized: boolean;
-  /** geometry stashed before maximize so we can restore */
-  prev?: { x: number; y: number; w: number; h: number };
+  /** null until the window is dragged or resized; until then CSS places it */
+  geo: Geo | null;
 }
 
 interface OS {
-  booted: boolean;
-  wallpaperFocus: boolean;      // true when desktop itself is focused
-  windows: WinState[];
+  wins: Record<WinId, WinState>;
   topZ: number;
   spotlight: boolean;
+  /** Notification Center, the widget panel behind the clock */
+  nc: boolean;
+  /** Mission Control: every open window laid out side by side */
+  mission: boolean;
+  /** where a dragged window would land if dropped now */
+  snap: Snap;
 
-  boot: () => void;
-  open: (id: WinId, title: string, w?: number, h?: number) => void;
+  open: (id: WinId) => void;
   close: (id: WinId) => void;
   focus: (id: WinId) => void;
   minimize: (id: WinId) => void;
   toggleMax: (id: WinId) => void;
-  move: (id: WinId, x: number, y: number) => void;
-  resize: (id: WinId, w: number, h: number) => void;
-  focusDesktop: () => void;
+  place: (id: WinId, geo: Geo) => void;
   setSpotlight: (v: boolean) => void;
+  setNc: (v: boolean) => void;
+  setMission: (v: boolean) => void;
+  setSnap: (v: Snap) => void;
+  /** bring the next open window to the front, like ⌘` */
+  cycle: () => void;
 }
 
-const MENUBAR = 30;
-const DOCK = 78;
+const closed: WinState = { open: false, min: false, max: false, z: 10, geo: null };
 
-/** cascade new windows so they never land exactly on top of each other */
-function cascade(count: number, w: number, h: number) {
-  const vw = typeof window !== "undefined" ? window.innerWidth : 1440;
-  const vh = typeof window !== "undefined" ? window.innerHeight : 900;
-  const step = 28;
-  const baseX = Math.max(24, (vw - w) / 2 - 90);
-  const baseY = Math.max(MENUBAR + 16, (vh - DOCK - h) / 2 - 30);
-  // wrap the cascade every 6 windows so it can't march off screen
-  const n = count % 6;
-  return {
-    x: Math.min(baseX + n * step, vw - w - 24),
-    y: Math.min(baseY + n * step, vh - DOCK - h - 16),
-  };
-}
-
-export const useOS = create<OS>((set, get) => ({
-  booted: false,
-  wallpaperFocus: true,
-  windows: [],
-  topZ: 10,
-  spotlight: false,
-
-  boot: () => set({ booted: true }),
-
-  open: (id, title, w = 880, h = 560) => {
-    const { windows, topZ } = get();
-    const existing = windows.find((x) => x.id === id);
-    // already open → just un-minimize and raise it
-    if (existing) {
-      set({
-        topZ: topZ + 1,
-        wallpaperFocus: false,
-        windows: windows.map((x) =>
-          x.id === id ? { ...x, minimized: false, z: topZ + 1 } : x
-        ),
-      });
-      return;
-    }
-    const vw = typeof window !== "undefined" ? window.innerWidth : 1440;
-    const vh = typeof window !== "undefined" ? window.innerHeight : 900;
-    const ww = Math.min(w, vw - 48);
-    const wh = Math.min(h, vh - MENUBAR - DOCK - 32);
-    const { x, y } = cascade(windows.length, ww, wh);
-    set({
-      topZ: topZ + 1,
-      wallpaperFocus: false,
-      windows: [
-        ...windows,
-        { id, title, x, y, w: ww, h: wh, z: topZ + 1, minimized: false, maximized: false },
-      ],
-    });
+export const useOS = create<OS>((set) => ({
+  // Same on server and client, so the first paint and hydration agree.
+  wins: {
+    about:    { ...closed, open: true, z: 11 },
+    sensei:   { ...closed, open: true, z: 12 },
+    activity: closed,
+    projects: closed,
+    shell:    closed,
+    resume:   closed,
   },
+  topZ: 12,
+  spotlight: false,
+  nc: false,
+  mission: false,
+  snap: null,
 
-  close: (id) => set((s) => ({ windows: s.windows.filter((x) => x.id !== id) })),
-
-  focus: (id) =>
+  open: (id) =>
     set((s) => ({
       topZ: s.topZ + 1,
-      wallpaperFocus: false,
-      windows: s.windows.map((x) => (x.id === id ? { ...x, z: s.topZ + 1 } : x)),
+      wins: { ...s.wins, [id]: { ...s.wins[id], open: true, min: false, z: s.topZ + 1 } },
     })),
+
+  close: (id) =>
+    set((s) => ({ wins: { ...s.wins, [id]: { ...s.wins[id], open: false, max: false } } })),
+
+  focus: (id) =>
+    set((s) =>
+      s.wins[id].z === s.topZ
+        ? s
+        : { topZ: s.topZ + 1, wins: { ...s.wins, [id]: { ...s.wins[id], z: s.topZ + 1 } } }),
 
   minimize: (id) =>
-    set((s) => ({
-      windows: s.windows.map((x) => (x.id === id ? { ...x, minimized: true } : x)),
-    })),
+    set((s) => ({ wins: { ...s.wins, [id]: { ...s.wins[id], min: true } } })),
 
   toggleMax: (id) =>
-    set((s) => ({
-      windows: s.windows.map((x) => {
-        if (x.id !== id) return x;
-        if (x.maximized) {
-          const p = x.prev ?? { x: 60, y: 60, w: 880, h: 560 };
-          return { ...x, ...p, maximized: false, prev: undefined };
-        }
-        return {
-          ...x,
-          prev: { x: x.x, y: x.y, w: x.w, h: x.h },
-          x: 0,
-          y: MENUBAR,
-          w: window.innerWidth,
-          h: window.innerHeight - MENUBAR - DOCK + 12,
-          maximized: true,
-        };
-      }),
-    })),
+    set((s) => ({ wins: { ...s.wins, [id]: { ...s.wins[id], max: !s.wins[id].max } } })),
 
-  move: (id, x, y) =>
-    set((s) => ({ windows: s.windows.map((k) => (k.id === id ? { ...k, x, y } : k)) })),
 
-  resize: (id, w, h) =>
-    set((s) => ({ windows: s.windows.map((k) => (k.id === id ? { ...k, w, h } : k)) })),
+  place: (id, geo) =>
+    set((s) => ({ wins: { ...s.wins, [id]: { ...s.wins[id], geo } } })),
 
-  focusDesktop: () => set({ wallpaperFocus: true }),
   setSpotlight: (v) => set({ spotlight: v }),
+  setNc: (v) => set({ nc: v }),
+  setMission: (v) => set({ mission: v, nc: false }),
+  setSnap: (v) => set((s) => (s.snap === v ? s : { snap: v })),
+
+  cycle: () =>
+    set((s) => {
+      const shown = (Object.keys(s.wins) as WinId[])
+        .filter((id) => s.wins[id].open && !s.wins[id].min)
+        .sort((a, b) => s.wins[a].z - s.wins[b].z);
+      if (shown.length < 2) return s;
+      const back = shown[0];
+      return { topZ: s.topZ + 1, wins: { ...s.wins, [back]: { ...s.wins[back], z: s.topZ + 1 } } };
+    }),
 }));
+
+/** the window in front, if any is showing */
+export function frontmost(wins: Record<WinId, WinState>): WinId | null {
+  let best: WinId | null = null;
+  for (const id of Object.keys(wins) as WinId[]) {
+    const w = wins[id];
+    if (!w.open || w.min) continue;
+    if (!best || w.z > wins[best].z) best = id;
+  }
+  return best;
+}

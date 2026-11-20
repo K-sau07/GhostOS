@@ -1,4 +1,4 @@
-/* Ghost OS iconography — thin-stroke line art, no fills, no colour.
+/* Ghost OS iconography: thin-stroke line art, no fills, no colour.
    Every icon reads as an etching in fog rather than a glyph. */
 const S = ({ children, size = 42 }: { children: React.ReactNode; size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 48 48" fill="none"

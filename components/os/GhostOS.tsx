@@ -1,70 +1,59 @@
-"use client";
-import { useOS } from "@/lib/store";
 import BootScreen from "./BootScreen";
 import MenuBar from "./MenuBar";
+import MobileBar from "./MobileBar";
 import Desktop from "./Desktop";
 import Dock from "./Dock";
 import Window from "./Window";
 import Spotlight from "./Spotlight";
-import {
-  AboutApp, SystemsApp, ResumeApp,
-  ContactApp, TrashApp, ProjectApp,
-} from "./AppViews";
-import FinderApp from "./FinderApp";
-import LiveApp from "./LiveApp";
-import SafariApp from "./SafariApp";
+import Motion from "./Motion";
+import About from "./About";
+import Sensei from "./Sensei";
+import Projects from "./Projects";
 import TerminalApp from "./TerminalApp";
-import MobileView from "./MobileView";
+import Resume from "./Resume";
+import Activity from "./Widgets";
+import NotificationCenter from "./NotificationCenter";
+import Screensaver from "./Screensaver";
+import { Keys, MissionControl, SnapPreview } from "./Overlays";
+import { LiveProvider } from "@/lib/live-context";
+import type { LiveData } from "@/lib/live-types";
 
-function render(id: string) {
-  if (id.startsWith("proj:")) return <ProjectApp id={id.slice(5)} />;
-  if (id.startsWith("safari:")) return <SafariApp id={id.slice(7)} />;
-  switch (id) {
-    case "about":    return <AboutApp />;
-    case "finder":   return <FinderApp />;
-    case "systems":  return <SystemsApp />;
-    case "live":     return <LiveApp />;
-    case "resume":   return <ResumeApp />;
-    case "terminal": return <TerminalApp />;
-    case "contact":  return <ContactApp />;
-    case "trash":    return <TrashApp />;
-    default:         return null;
-  }
-}
-
-export default function GhostOS() {
-  const { booted, boot, windows } = useOS();
-
+/**
+ * The whole site. Every window is in the server-rendered page, so the content
+ * reads without JavaScript and search engines see all of it. On a desktop the
+ * windows float over the wallpaper; below 1024px the same windows stack into
+ * one page.
+ */
+export default function GhostOS({ live }: { live: LiveData }) {
   return (
-    <>
-      <MobileView />
+    <LiveProvider value={live}>
+    <Motion>
+      <div className="desk">
+        <BootScreen />
+        <div aria-hidden className="dots absolute inset-0 max-lg:hidden"
+             style={{ "--gx": "50%", "--gy": "42%" }} />
+        <MenuBar />
+        <MobileBar />
+        <Desktop />
 
-      <div className="hidden md:block">
-      {!booted && <BootScreen onDone={boot} />}
+        <main className="pb-24 lg:contents">
+          <Window id="about" delay={0.05}><About /></Window>
+          <Window id="sensei" delay={0.2}><Sensei /></Window>
+          <Window id="activity"><Activity /></Window>
+          <Window id="projects"><Projects /></Window>
+          <Window id="shell" lgOnly><TerminalApp /></Window>
+          <Window id="resume" lgOnly><Resume /></Window>
+        </main>
 
-      <div className="fog-layer">
-        <i className="fog-1" /><i className="fog-2" /><i className="fog-3" /><i className="fog-4" />
+        <MissionControl />
+        <SnapPreview />
+        <Dock />
+        <NotificationCenter />
+        <Spotlight />
+        <Screensaver />
+        <Keys />
       </div>
-
-      {booted && (
-        <>
-          <MenuBar />
-          <Desktop />
-          <div className="absolute inset-0 z-[100] pointer-events-none">
-            {windows.map((w) => (
-              <div key={w.id} className="pointer-events-auto">
-                <Window win={w}>{render(w.id)}</Window>
-              </div>
-            ))}
-          </div>
-          <Dock />
-          <Spotlight />
-        </>
-      )}
-
-      <div className="vignette" />
-      <div className="grain" />
-      </div>
-    </>
+    </Motion>
+    </LiveProvider>
   );
 }

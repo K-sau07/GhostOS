@@ -1,132 +1,178 @@
 "use client";
-import { motion, AnimatePresence, useDragControls } from "framer-motion";
-import { useOS, type WinState } from "@/lib/store";
+import { useEffect, useRef } from "react";
+import { useOS, frontmost, WINDOWS, type WinId, type Geo, type Snap } from "@/lib/store";
 
-const DOCK = 78;
+const isDesktop = () => window.matchMedia("(min-width: 1024px)").matches;
 
-function TrafficLights({ id }: { id: string }) {
+const MENUBAR = 30, DOCK_ROOM = 100;
+
+/** Where a window lands when dropped against an edge. */
+export function snapGeo(s: Exclude<Snap, null>): Geo {
+  const W = window.innerWidth, H = window.innerHeight - MENUBAR - DOCK_ROOM;
+  if (s === "left") return { x: 0, y: MENUBAR, w: W / 2, h: H };
+  if (s === "right") return { x: W / 2, y: MENUBAR, w: W / 2, h: H };
+  return { x: 0, y: MENUBAR, w: W, h: H };
+}
+
+/** Follow the pointer until release. `apply` gets the distance moved. */
+function track(
+  e: React.PointerEvent,
+  apply: (dx: number, dy: number, ev: PointerEvent) => void,
+  done?: () => void,
+) {
+  e.preventDefault();
+  const sx = e.clientX, sy = e.clientY;
+  const move = (ev: PointerEvent) => apply(ev.clientX - sx, ev.clientY - sy, ev);
+  const up = () => {
+    window.removeEventListener("pointermove", move);
+    window.removeEventListener("pointerup", up);
+    done?.();
+  };
+  window.addEventListener("pointermove", move);
+  window.addEventListener("pointerup", up);
+}
+
+function Lights({ id }: { id: WinId }) {
   const { close, minimize, toggleMax } = useOS();
-  // Monochrome traffic lights: rings in fog that fill with light on hover.
-  const base =
-    "w-[12px] h-[12px] rounded-full border border-white/30 grid place-items-center " +
-    "text-[8px] leading-none text-black/0 hover:text-black/70 transition-all duration-200";
+  const btn =
+    "grid h-[11px] w-[11px] place-items-center rounded-full border border-line text-[8px] " +
+    "leading-none text-transparent transition-colors group-hover/l:text-muted hover:!text-fg hover:border-muted";
   return (
-    <div className="flex gap-2 group/lights">
-      <button
-        aria-label="Close"
-        onClick={(e) => { e.stopPropagation(); close(id); }}
-        className={`${base} hover:bg-white hover:border-white`}
-      >✕</button>
-      <button
-        aria-label="Minimize"
-        onClick={(e) => { e.stopPropagation(); minimize(id); }}
-        className={`${base} hover:bg-white/70 hover:border-white/70`}
-      >–</button>
-      <button
-        aria-label="Maximize"
-        onClick={(e) => { e.stopPropagation(); toggleMax(id); }}
-        className={`${base} hover:bg-white/45 hover:border-white/45`}
-      >+</button>
+    <div className="group/l flex gap-[7px] max-lg:hidden" onPointerDown={(e) => e.stopPropagation()}>
+      <button aria-label="Close" className={btn} onClick={() => close(id)}>×</button>
+      <button aria-label="Minimize" className={btn} onClick={() => minimize(id)}>–</button>
+      <button aria-label="Zoom" className={btn} onClick={() => toggleMax(id)}>+</button>
     </div>
   );
 }
 
 export default function Window({
-  win,
-  children,
+  id, delay = 0, lgOnly, children,
 }: {
-  win: WinState;
-  children: React.ReactNode;
+  id: WinId; delay?: number; lgOnly?: boolean; children: React.ReactNode;
 }) {
-  const { focus, move, resize, toggleMax, windows } = useOS();
-  const dragControls = useDragControls();
-  const isTop = win.z === Math.max(...windows.map((w) => w.z));
+  const w = useOS((s) => s.wins[id]);
+  const front = useOS((s) => frontmost(s.wins) === id);
+  const mission = useOS((s) => s.mission);
+  // a string, so the selector result is stable between renders
+  const shownKey = useOS((s) =>
+    (Object.keys(s.wins) as WinId[]).filter((k) => s.wins[k].open && !s.wins[k].min).join(","));
+  const { focus, place, toggleMax, setSnap, setMission } = useOS();
+  const ref = useRef<HTMLElement>(null);
+  const title = WINDOWS[id].title;
 
-  /** hand-rolled corner resize — pointer events, clamped to sane minimums */
-  const startResize = (e: React.PointerEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const sx = e.clientX, sy = e.clientY, sw = win.w, sh = win.h;
-    const onMove = (ev: PointerEvent) => {
-      resize(
-        win.id,
-        Math.max(420, Math.min(sw + (ev.clientX - sx), window.innerWidth - win.x - 8)),
-        Math.max(260, Math.min(sh + (ev.clientY - sy), window.innerHeight - win.y - 8))
-      );
-    };
-    const onUp = () => {
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-    };
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
+  const start = (): Geo | null => {
+    const el = ref.current;
+    if (!el || !isDesktop() || w.max) return null;
+    const r = el.getBoundingClientRect();
+    return { x: r.left, y: r.top, w: r.width, h: r.height };
   };
 
+  const drag = (e: React.PointerEvent) => {
+    if (e.button !== 0 || mission) return;
+    const g = start();
+    if (!g) return;
+    track(
+      e,
+      (dx, dy, ev) => {
+        place(id, {
+          ...g,
+          x: Math.min(Math.max(g.x + dx, 120 - g.w), window.innerWidth - 120),
+          y: Math.min(Math.max(g.y + dy, MENUBAR), window.innerHeight - 120),
+        });
+        // push against an edge to snap: left and right halves, or the top to fill
+        const W = window.innerWidth;
+        setSnap(ev.clientX <= 6 ? "left" : ev.clientX >= W - 6 ? "right" : ev.clientY <= MENUBAR + 4 ? "max" : null);
+      },
+      () => {
+        const s = useOS.getState().snap;
+        setSnap(null);
+        if (s) place(id, snapGeo(s));
+      },
+    );
+  };
+
+  const resize = (e: React.PointerEvent) => {
+    e.stopPropagation();
+    const g = start();
+    if (!g) return;
+    track(e, (dx, dy) =>
+      place(id, {
+        ...g,
+        w: Math.max(380, Math.min(g.w + dx, window.innerWidth - g.x - 8)),
+        h: Math.max(240, Math.min(g.h + dy, window.innerHeight - g.y - 8)),
+      }));
+  };
+
+  const shown = w.open && !w.min;
+
+  // Mission Control: every shown window scaled into a grid. Uses the separate
+  // `translate`/`scale` properties so it never fights the rise animation.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (!mission || !shown) { el.style.translate = ""; el.style.scale = ""; return; }
+    const ids = shownKey.split(",");
+    const i = ids.indexOf(id), n = ids.length;
+    const W = window.innerWidth, top = 84, bottom = 120, pad = 56;
+    const cols = Math.ceil(Math.sqrt(n)), rows = Math.ceil(n / cols);
+    const cw = (W - pad * 2) / cols, ch = (window.innerHeight - top - bottom) / rows;
+    const row = Math.floor(i / cols), inLast = n - cols * (rows - 1);
+    const shift = row === rows - 1 ? ((cols - inLast) * cw) / 2 : 0;
+    const r = { x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight };
+    const scale = Math.min((cw - 48) / r.w, (ch - 48) / r.h, 0.85);
+    const cx = pad + shift + cw * ((i % cols) + 0.5), cy = top + ch * (row + 0.5);
+    el.style.translate = `${cx - (r.x + r.w / 2)}px ${cy - (r.y + r.h / 2)}px`;
+    el.style.scale = String(scale);
+  }, [mission, shown, shownKey, id, w.geo, w.max]);
+
+  const geo = w.geo && !w.max
+    ? { "--x": `${w.geo.x}px`, "--y": `${w.geo.y}px`, "--w": `${w.geo.w}px`, "--h": `${w.geo.h}px` }
+    : {};
+
   return (
-    <AnimatePresence>
-      {!win.minimized && (
-        <motion.div
-          drag={!win.maximized}
-          dragMomentum={false}
-          dragElastic={0}
-          dragListener={false}
-          dragControls={dragControls}
-          dragConstraints={{
-            left: -win.w + 140,
-            top: 0,
-            right: window.innerWidth - 140,
-            bottom: window.innerHeight - DOCK - 40,
-          }}
-          onDragEnd={(_, info) => move(win.id, win.x + info.offset.x, win.y + info.offset.y)}
-          onPointerDown={() => focus(win.id)}
-          initial={{ opacity: 0, scale: .96, y: 14 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: .97, y: 8 }}
-          transition={{ duration: .34, ease: [.16, 1, .3, 1] }}
-          style={{
-            position: "absolute",
-            left: win.x, top: win.y, width: win.w, height: win.h, zIndex: win.z,
-          }}
-          className="flex flex-col rounded-[11px] overflow-hidden glass-window"
+    <section
+      ref={ref}
+      id={`win-${id}`}
+      aria-label={title}
+      data-shown={w.open && !w.min}
+      data-max={w.max}
+      data-lg-only={lgOnly ? "true" : undefined}
+      data-mission={mission || undefined}
+      onPointerDown={() => focus(id)}
+      style={{ zIndex: w.z, "--d": `${delay}s`, ...geo }}
+      className={`win win-${id} rise scroll-mt-16 overflow-hidden rounded-[14px] border border-line bg-bg
+                  lg:shadow-[var(--shadow)]`}
+    >
+      <header
+        onPointerDown={drag}
+        onDoubleClick={() => isDesktop() && toggleMax(id)}
+        className="relative flex h-[38px] shrink-0 select-none items-center border-b border-line px-3.5"
+      >
+        <Lights id={id} />
+        <span
+          className={`label absolute left-1/2 -translate-x-1/2 whitespace-nowrap transition-opacity
+                      ${front ? "" : "lg:opacity-60"}`}
         >
-          {/* title bar — the drag handle */}
-          <div
-            onPointerDown={(e) => {
-              focus(win.id);
-              if (!win.maximized) dragControls.start(e);
-            }}
-            onDoubleClick={() => toggleMax(win.id)}
-            className="relative h-[34px] shrink-0 flex items-center px-3.5 cursor-default select-none
-                       border-b border-white/10 bg-white/[.035]"
-          >
-            <TrafficLights id={win.id} />
-            <span
-              className={`mono absolute left-1/2 -translate-x-1/2 text-[11px] tracking-[.14em]
-                          transition-opacity duration-300
-                          ${isTop ? "text-white/70" : "text-white/28"}`}
-            >
-              {win.title}
-            </span>
-          </div>
+          {title}
+        </span>
+      </header>
 
-          {/* content */}
-          <div className="flex-1 overflow-auto overscroll-contain">{children}</div>
+      <div className="min-h-0 flex-1 overflow-auto overscroll-contain">{children}</div>
 
-          {/* resize grip */}
-          {!win.maximized && (
-            <div
-              onPointerDown={startResize}
-              className="absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize"
-            />
-          )}
-
-          {/* unfocused windows recede into the fog */}
-          <div
-            className="pointer-events-none absolute inset-0 transition-opacity duration-500"
-            style={{ background: "rgba(0,0,0,.42)", opacity: isTop ? 0 : 1 }}
-          />
-        </motion.div>
+      {mission && shown && (
+        <button
+          aria-label={`Show ${title}`}
+          onClick={() => { focus(id); setMission(false); }}
+          className="absolute inset-0 z-10 rounded-[14px] outline-none ring-accent transition-shadow hover:ring-2 max-lg:hidden"
+        />
       )}
-    </AnimatePresence>
+
+      <div
+        onPointerDown={resize}
+        aria-hidden
+        className="absolute bottom-0 right-0 h-4 w-4 cursor-nwse-resize max-lg:hidden"
+      />
+    </section>
   );
 }

@@ -1,32 +1,38 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useOS } from "@/lib/store";
-import { MenuBarMenu, MenuPanel, type MenuItem } from "./Menus";
-import { profile } from "@/lib/content";
+import { useOS, frontmost, WINDOWS, type WinId } from "@/lib/store";
+import { launch, openUrl } from "@/lib/actions";
+import { profile, sensei } from "@/lib/content";
+import { MenuBarMenu, type MenuItem } from "./Menus";
+import ThemeToggle, { useToggleTheme } from "./ThemeToggle";
+import { useNow, fmtTime } from "./Widgets";
 
-
+/** The clock opens Notification Center, as on a Mac. */
 function Clock() {
-  // Seeded during render rather than in an effect. Server and client will disagree
-  // by definition here, so the mismatch is suppressed on the rendered node.
-  const [now, setNow] = useState(() => new Date());
-  useEffect(() => {
-    const t = setInterval(() => setNow(new Date()), 1000 * 20);
-    return () => clearInterval(t);
-  }, []);
+  const now = useNow(20_000);
+  const { nc, setNc } = useOS();
   return (
-    <span suppressHydrationWarning className="mono text-[11px] tracking-[.1em] text-white/72">
-      {now.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
-      {"  "}
-      {now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
-    </span>
+    <button
+      onClick={() => setNc(!nc)}
+      aria-label="Notification Center"
+      aria-expanded={nc}
+      className={`rounded-md px-2 py-0.5 font-mono text-[11.5px] tabular-nums transition-colors
+                  ${nc ? "bg-panel text-fg" : "text-muted hover:text-fg"}`}
+    >
+      <span suppressHydrationWarning>
+        {now.toLocaleDateString("en-US", { weekday: "short", day: "numeric", month: "short" })}
+        {"  ·  "}
+        {fmtTime(now)}
+      </span>
+    </button>
   );
 }
 
 export default function MenuBar() {
-  const { windows, setSpotlight, open, close, minimize, toggleMax } = useOS();
+  const { wins, setSpotlight, close, minimize, toggleMax, mission, setMission, cycle, setNc } = useOS();
+  const toggleTheme = useToggleTheme();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
-  const top = windows.length ? windows.reduce((a, b) => (a.z > b.z ? a : b)) : null;
-  const active = top && !top.minimized ? top.title : "Finder";
+  const top = frontmost(wins);
 
   // clicking anywhere else dismisses an open menu
   useEffect(() => {
@@ -36,112 +42,84 @@ export default function MenuBar() {
     return () => window.removeEventListener("click", h);
   }, [openMenu]);
 
-  const set = (name: string) => (v: boolean) => setOpenMenu(v ? name : null);
+  const shown = (Object.keys(wins) as WinId[]).filter((id) => wins[id].open);
 
   const MENUS: Record<string, MenuItem[]> = {
-    Ghost: [
-      { label: "About This Ghost", onSelect: () => open("about", "about.mdx", 840, 640) },
+    "Ghost OS": [
+      { label: "About Saurabh", onSelect: () => launch("about") },
+      { label: "repo-sensei", onSelect: () => launch("sensei") },
       { sep: true },
-      { label: "Résumé…", shortcut: "⌘R", onSelect: () => open("resume", "resume.pdf", 820, 660) },
-      { label: "Systems…", onSelect: () => open("systems", "systems.app", 1060, 700) },
-      { sep: true },
-      { label: "GitHub ↗", onSelect: () => window.open(profile.github, "_blank") },
-      { label: "LinkedIn ↗", onSelect: () => window.open(profile.linkedin, "_blank") },
+      { label: "GitHub ↗", onSelect: () => openUrl(profile.github) },
+      { label: "LinkedIn ↗", onSelect: () => openUrl(profile.linkedin) },
+      { label: "reposensei.com ↗", onSelect: () => openUrl(sensei.href) },
     ],
     File: [
-      { label: "New Finder Window", shortcut: "⌘N", onSelect: () => open("finder", "work", 900, 580) },
-      { label: "Open Terminal", shortcut: "⌘T", onSelect: () => open("terminal", "terminal.app", 720, 440) },
+      { label: "Open Projects", onSelect: () => launch("projects") },
+      { label: "Open Activity", onSelect: () => launch("activity") },
+      { label: "Open Shell", onSelect: () => launch("shell") },
+      { label: "Open Résumé", onSelect: () => launch("resume") },
       { sep: true },
-      { label: "Close Window", shortcut: "⌘W", disabled: !top, onSelect: () => top && close(top.id) },
-    ],
-    Edit: [
-      { label: "Undo", shortcut: "⌘Z", disabled: true },
-      { label: "Redo", shortcut: "⇧⌘Z", disabled: true },
-      { sep: true },
-      { label: "Find…", shortcut: "⌘K", onSelect: () => setSpotlight(true) },
+      { label: "Close Window", disabled: !top, onSelect: () => top && close(top) },
     ],
     View: [
-      { label: "Enter Full Screen", shortcut: "⌃⌘F", disabled: !top, onSelect: () => top && toggleMax(top.id) },
+      { label: "Mission Control", shortcut: "⌥↑", onSelect: () => setMission(!mission) },
+      { label: "Notification Center", onSelect: () => setNc(true) },
+      { label: "Light / Dark", onSelect: toggleTheme },
+      { label: "Zoom Window", disabled: !top, onSelect: () => top && toggleMax(top) },
       { sep: true },
-      { label: "Show Spotlight", shortcut: "⌘K", onSelect: () => setSpotlight(true) },
+      { label: "Spotlight", shortcut: "⌘K", onSelect: () => setSpotlight(true) },
     ],
     Window: [
-      { label: "Minimise", shortcut: "⌘M", disabled: !top, onSelect: () => top && minimize(top.id) },
-      { label: "Zoom", disabled: !top, onSelect: () => top && toggleMax(top.id) },
+      { label: "Minimize", disabled: !top, onSelect: () => top && minimize(top) },
+      { label: "Next Window", shortcut: "⌥`", onSelect: cycle },
+      { label: "Snap: drag a window to an edge", disabled: true },
       { sep: true },
-      ...(windows.length
-        ? windows.map((w) => ({ label: w.title, onSelect: () => open(w.id, w.title) }))
-        : [{ label: "No Open Windows", disabled: true }]),
+      ...(shown.length
+        ? shown.map((id) => ({ label: WINDOWS[id].title, onSelect: () => launch(id) }))
+        : [{ label: "No open windows", disabled: true }]),
     ],
     Help: [
-      { label: "Email Saurabh", onSelect: () => window.open(`mailto:${profile.email}`) },
-      { label: "Download Résumé", onSelect: () => window.open("/resume.pdf") },
+      { label: `Email ${profile.name.split(" ")[0]}`, onSelect: () => openUrl(`mailto:${profile.email}`) },
+      { label: "Download Résumé", onSelect: () => openUrl(profile.resume) },
     ],
   };
 
   return (
     <div
-      className="fixed top-0 left-0 right-0 h-[30px] z-[500] flex items-center
-                 px-3 gap-0.5 select-none glass !border-x-0 !border-t-0"
-      style={{ borderRadius: 0 }}
+      className="fixed inset-x-0 top-0 z-[500] flex h-[30px] select-none items-center gap-0.5 border-b border-line
+                 bg-bg px-3 max-lg:hidden"
       onClick={(e) => e.stopPropagation()}
     >
-      {/* ghost mark, in place of the apple */}
-      <div className="relative">
-        <button
-          onClick={() => setOpenMenu(openMenu === "Ghost" ? null : "Ghost")}
-          className="px-2.5 h-[22px] grid place-items-center rounded transition-colors"
-          style={{ background: openMenu === "Ghost" ? "rgba(255,255,255,.18)" : "transparent" }}
-        >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-            <path d="M12 2.6c-4.1 0-7.1 3.1-7.1 7.2v11.6l2.6-2 2.4 2 2.1-2 2.1 2 2.4-2 2.6 2V9.8c0-4.1-3-7.2-7.1-7.2z"
-                  stroke="currentColor" strokeWidth="1.2" className="text-white/85" />
-            <circle cx="9.4" cy="10.2" r="1.15" fill="currentColor" className="text-white/85" />
-            <circle cx="14.6" cy="10.2" r="1.15" fill="currentColor" className="text-white/85" />
-          </svg>
-        </button>
-        {openMenu === "Ghost" && (
-          <div className="absolute left-0 top-[26px]">
-            <MenuPanel items={MENUS.Ghost} onClose={() => setOpenMenu(null)} />
-          </div>
-        )}
-      </div>
-
-      <span className="mono text-[11px] tracking-[.16em] text-white font-medium px-2">
-        {active}
-      </span>
-
-      {["File", "Edit", "View", "Window", "Help"].map((m) => (
+      <MenuBarMenu
+        label={<span className="font-serif text-[14.5px] text-fg">Ghost OS</span>}
+        items={MENUS["Ghost OS"]}
+        open={openMenu === "Ghost OS"}
+        setOpen={(v) => setOpenMenu(v ? "Ghost OS" : null)}
+      />
+      <span className="px-2.5 font-mono text-[11.5px] text-fg">{top ? WINDOWS[top].title : "desktop"}</span>
+      {["File", "View", "Window", "Help"].map((name) => (
         <MenuBarMenu
-          key={m} label={m} items={MENUS[m]}
-          open={openMenu === m} setOpen={set(m)}
+          key={name}
+          label={<span className="font-mono text-[11.5px]">{name}</span>}
+          items={MENUS[name]}
+          open={openMenu === name}
+          setOpen={(v) => setOpenMenu(v ? name : null)}
         />
       ))}
 
-      <div className="ml-auto flex items-center gap-3.5">
-        <button
-          onClick={() => setSpotlight(true)}
-          aria-label="Spotlight search"
-          className="opacity-65 hover:opacity-100 transition"
-        >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-            <circle cx="11" cy="11" r="6.5" /><path d="M16 16l4.5 4.5" />
+      <div className="ml-auto flex items-center gap-4">
+        <button onClick={() => setSpotlight(true)}
+                className="font-mono text-[11.5px] text-muted transition-colors hover:text-fg">
+          ⌘K search
+        </button>
+        <button onClick={() => setMission(!mission)} aria-label="Mission Control" title="Mission Control (⌥↑)"
+                className="grid h-6 w-6 place-items-center text-muted transition-colors hover:text-fg">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden>
+            <rect x="1.5" y="2.5" width="5.5" height="4.5" rx="1" /><rect x="9" y="2.5" width="5.5" height="4.5" rx="1" />
+            <rect x="1.5" y="9" width="5.5" height="4.5" rx="1" /><rect x="9" y="9" width="5.5" height="4.5" rx="1" />
           </svg>
         </button>
-        {/* wifi */}
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             strokeWidth="1.5" strokeLinecap="round" className="text-white/65">
-          <path d="M3.5 8.5a13 13 0 0117 0M6.8 12a8.4 8.4 0 0110.4 0M10 15.3a3.6 3.6 0 014 0" />
-          <circle cx="12" cy="18.6" r=".9" fill="currentColor" stroke="none" />
-        </svg>
-        {/* battery */}
-        <svg width="20" height="14" viewBox="0 0 28 14" fill="none" stroke="currentColor"
-             strokeWidth="1.1" className="text-white/65">
-          <rect x=".7" y="2.2" width="22" height="9.6" rx="2.6" />
-          <rect x="2.5" y="4" width="15" height="6" rx="1.2" fill="currentColor" stroke="none" />
-          <path d="M24.4 5.6v2.8" strokeWidth="2" strokeLinecap="round" />
-        </svg>
+        <ThemeToggle />
         <Clock />
       </div>
     </div>
