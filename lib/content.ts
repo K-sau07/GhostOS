@@ -56,12 +56,15 @@ export const sensei = {
   checked: "each claim checked against its lines",
   source:
     "fastapi/full-stack-fastapi-template · flow ft-login, one of 101 hand-labelled flows in CrossLayerBench",
-  origin: [
-    "It started with OpenLens, which found you a first open-source issue and the files to touch. " +
-      "OpenLens never read the code.",
-    "repo-sensei does: it answers questions about a repository with citations to the exact lines, " +
-      "traces features across TypeScript, Python and Java, and plugs into Claude Code, Cursor and " +
-      "VS Code over MCP.",
+  /** why it exists, told plainly */
+  story: [
+    "Every engineer knows the first week in a new codebase. You grep, you guess, and you ask someone " +
+      "who's busy. The answer is in the code, spread across the page, the API, the services and the database.",
+    "I built OpenLens first, to get people to their first open-source pull request. It found the right " +
+      "issue and the files to touch, but it never read the code. repo-sensei does.",
+    "It reads every commit the way a careful engineer would: symbols, calls, routes and queries, across " +
+      "TypeScript, Python and Java. Ask it something and the answer comes from the code, every claim cited " +
+      "to its lines and checked against them before you see it. When the code doesn't say, neither does it.",
   ],
   bench:
     "I hold it to a benchmark I built and published. 0.95 hop recall on the repo I tuned it on, " +

@@ -6,7 +6,7 @@ import SenseiShowcase from "./SenseiShowcase";
 const layerColor = (l: string) => `var(--l-${l})`;
 const ext = { target: "_blank", rel: "noreferrer" } as const;
 
-/** OpenLens is named in the origin story; it should be a link there too. */
+/** OpenLens is named in the story; it should be a link there too. */
 function Origin({ text }: { text: string }) {
   const at = text.indexOf("OpenLens");
   if (at < 0) return <>{text}</>;
@@ -176,7 +176,15 @@ export default function Sensei() {
       </div>
 
       <div className="relative space-y-4 px-6 pb-9 pt-4 text-[15px] leading-[1.7] @[640px]:px-10">
-        <p className="max-w-[64ch] text-muted"><Origin text={sensei.origin[0]} /> {sensei.origin[1]}</p>
+        <div className="flex items-center gap-5 pt-2">
+          <h3 className="label shrink-0">Why I built it</h3>
+          <span aria-hidden className="h-px flex-1 bg-line" />
+        </div>
+        {sensei.story.map((t, i) => (
+          <p key={i} className={`max-w-[64ch] ${i === 0 ? "font-serif text-[20px] leading-[1.5] text-fg" : "text-muted"}`}>
+            <Origin text={t} />
+          </p>
+        ))}
         <div className="pt-8"><SenseiShowcase /></div>
         <p className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-8 text-[14.5px]">
           {sensei.links.map((l, i) => (

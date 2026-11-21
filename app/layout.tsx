@@ -62,6 +62,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* the intro's picture is the first thing anyone sees; fetch it before anything else */}
+        <link rel="preload" as="image" href="/avatar.webp" type="image/webp" fetchPriority="high" />
         <script dangerouslySetInnerHTML={{ __html: early }} />
         <script
           type="application/ld+json"

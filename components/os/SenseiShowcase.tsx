@@ -1,3 +1,5 @@
+"use client";
+import { useState } from "react";
 import { sensei } from "@/lib/content";
 
 const ext = { target: "_blank", rel: "noreferrer" } as const;
@@ -27,10 +29,49 @@ function Shot({ src, alt, w, h, caption }: { src: string; alt: string; w: number
           <span className="font-mono text-[11px] text-muted opacity-0 transition-opacity group-hover:opacity-100">↗</span>
         </div>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={src} alt={alt} width={w} height={h} loading="lazy" className="block h-auto w-full" />
+        <img src={src} alt={alt} width={w} height={h} loading="lazy" decoding="async" className="block h-auto w-full" />
       </a>
       <figcaption className="mt-2.5 font-mono text-[11.5px] leading-[1.6] text-muted">{caption}</figcaption>
     </figure>
+  );
+}
+
+/** Real screens from repo-sensei, run on Ecoplate (and the FastAPI template for Trace). */
+const TABS = [
+  { id: "ask", label: "Ask", src: "/shots/rs-ask.webp", w: 1400, h: 1196,
+    caption: "Asked how login works on Ecoplate. Every step cites its file and lines, and it says what it didn't read: \"I didn't read JwtUtil, so I can't say how the token is signed.\"" },
+  { id: "search", label: "Search", src: "/shots/rs-search.webp", w: 1400, h: 1050,
+    caption: "\"discount food as it nears expiry\": results in lanes from the UI to the database, each marked as a semantic, keyword or graph match." },
+  { id: "trace", label: "Trace", src: "/shots/repo-sensei-trace.webp", w: 1600, h: 746,
+    caption: "Sign-in on the FastAPI template, followed from the Login page to the user table: 9 hops, each with its lines." },
+  { id: "diagrams", label: "Diagrams", src: "/shots/rs-architecture.webp", w: 1400, h: 1050,
+    caption: "Ecoplate's architecture, drawn from its code graph. 92% of the edges are verified statically, and each step is explained with the code behind it." },
+  { id: "schema", label: "Data model", src: "/shots/rs-schema.webp", w: 1400, h: 1050,
+    caption: "The ER diagram, read straight from the JPA models: every table, column and relation, 100% statically verified." },
+  { id: "graph", label: "Graph", src: "/shots/rs-graph.webp", w: 1400, h: 1050,
+    caption: "Module dependencies with cycles flagged. Click an edge to see the code that creates it." },
+  { id: "index", label: "Indexing", src: "/shots/rs-index.webp", w: 1400, h: 1050,
+    caption: "Ecoplate indexed in 7 minutes: 349 files and 44,949 lines, parsed, embedded and linked across layers." },
+];
+
+function InsideTheApp() {
+  const [t, setT] = useState(TABS[0].id);
+  const tab = TABS.find((x) => x.id === t)!;
+  return (
+    <div>
+      <div role="tablist" aria-label="repo-sensei screens" className="flex flex-wrap gap-1.5">
+        {TABS.map((x) => (
+          <button key={x.id} role="tab" aria-selected={x.id === t} onClick={() => setT(x.id)}
+                  className={`rounded-full border px-3.5 py-1.5 font-mono text-[11.5px] uppercase tracking-[1.4px] transition-colors
+                              ${x.id === t ? "border-accent/60 bg-accent/15 text-fg" : "border-line text-muted hover:text-fg"}`}>
+            {x.label}
+          </button>
+        ))}
+      </div>
+      <div className="mt-4" role="tabpanel">
+        <Shot key={tab.id} src={tab.src} alt={`repo-sensei ${tab.label}: ${tab.caption}`} w={tab.w} h={tab.h} caption={tab.caption} />
+      </div>
+    </div>
   );
 }
 
@@ -51,9 +92,7 @@ export default function SenseiShowcase() {
       <section className="space-y-5">
         <Head>The product</Head>
         <Shot src="/shots/repo-sensei.webp" alt="reposensei.com: Understand any codebase, with answers you can verify."
-              w={1600} h={1111} caption="reposensei.com. Paste a GitHub URL and it reads the whole repository." />
-        <Shot src="/shots/repo-sensei-trace.webp" alt="repo-sensei tracing sign-in from the Login page through the API and services to the user table"
-              w={1600} h={746} caption="The engine's own trace of fastapi/full-stack-fastapi-template: 9 hops from the page to the data, each with its lines." />
+              w={1400} h={972} caption="reposensei.com. Paste a GitHub URL and it reads the whole repository." />
         <ul className="flex flex-wrap gap-2">
           {sensei.promises.map((p) => (
             <li key={p} className="flex items-center gap-2 rounded-full border border-line bg-panel px-3 py-1 text-[13px]">
@@ -61,6 +100,11 @@ export default function SenseiShowcase() {
             </li>
           ))}
         </ul>
+      </section>
+
+      <section className="space-y-5">
+        <Head>Inside the app</Head>
+        <InsideTheApp />
       </section>
 
       <section className="space-y-5">

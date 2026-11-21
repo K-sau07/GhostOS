@@ -203,7 +203,7 @@
   .boot-shade { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 45%, transparent 30%, var(--bg) 95%); opacity: .85; }
   .boot-card { position: relative; animation: boot-zoom .75s cubic-bezier(.6, 0, .35, 1) 2.6s forwards; }
   .boot-hello { animation: rise .6s ease .05s both; }
-  .boot-pic { animation: boot-pop .7s cubic-bezier(.2, .7, .2, 1) .25s both, boot-ring 1.4s ease-out .75s both; }
+  .boot-pic { animation: boot-pop .6s cubic-bezier(.2, .7, .2, 1) .05s both, boot-ring 1.4s ease-out .6s both; }
   .boot-ch { display: inline-block; white-space: pre; animation: boot-flash .7s ease both; animation-delay: calc(.55s + var(--i) * .045s); }
   .boot-word { display: inline-block; white-space: pre; animation: boot-word .5s cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(1.35s + var(--i) * .07s); }
   .boot-bar { transform-origin: left; animation: boot-bar 2.2s cubic-bezier(.4, 0, .2, 1) .3s both; }
