@@ -183,28 +183,45 @@
 }
 
 /* ── boot ───────────────────────────────────────────────────
-   Like a Mac login: the picture, the name flashing in letter by letter, a
-   progress hairline, then the whole card zooms through into the desktop. */
+   The first visit of a session opens like a welcome screen: a greeting, the
+   picture, the name flashing in, the line rising word by word over a slowly
+   drifting wallpaper, then everything zooms through into the desktop, the
+   way Apple TV moves between scenes. CSS only, skipped for reduced motion. */
 .boot { display: none; }
-@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+@media (prefers-reduced-motion: no-preference) {
   html:not([data-booted]) .boot {
-    position: fixed; inset: 0; z-index: 9000;
+    position: fixed; inset: 0; z-index: 9000; overflow: hidden;
     display: grid; place-items: center;
-    background: var(--bg) var(--wall) center / cover no-repeat;
-    animation: boot-out .5s ease 2.15s forwards;
+    background: var(--bg);
+    animation: boot-out .6s ease 2.85s forwards;
   }
-  .boot-card { animation: boot-zoom .65s cubic-bezier(.6, 0, .35, 1) 1.95s forwards; }
-  .boot-pic { animation: boot-pop .7s cubic-bezier(.2, .7, .2, 1) both, boot-ring 1.4s ease-out .5s both; }
-  .boot-ch { display: inline-block; white-space: pre; animation: boot-flash .7s ease both; animation-delay: calc(.4s + var(--i) * .045s); }
-  .boot-sub { animation: rise .5s ease 1.2s both; }
-  .boot-bar { transform-origin: left; animation: boot-bar 1.6s cubic-bezier(.4, 0, .2, 1) .25s both; }
+  .boot-wall {
+    position: absolute; inset: -4%;
+    background: var(--wall) center / cover no-repeat;
+    animation: boot-drift 3.4s cubic-bezier(.25, .1, .25, 1) both;
+  }
+  .boot-shade { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 45%, transparent 30%, var(--bg) 95%); opacity: .85; }
+  .boot-card { position: relative; animation: boot-zoom .75s cubic-bezier(.6, 0, .35, 1) 2.6s forwards; }
+  .boot-hello { animation: rise .6s ease .05s both; }
+  .boot-pic { animation: boot-pop .7s cubic-bezier(.2, .7, .2, 1) .25s both, boot-ring 1.4s ease-out .75s both; }
+  .boot-ch { display: inline-block; white-space: pre; animation: boot-flash .7s ease both; animation-delay: calc(.55s + var(--i) * .045s); }
+  .boot-word { display: inline-block; white-space: pre; animation: boot-word .5s cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(1.35s + var(--i) * .07s); }
+  .boot-bar { transform-origin: left; animation: boot-bar 2.2s cubic-bezier(.4, 0, .2, 1) .3s both; }
 
   /* windows rise in once the desktop is showing */
-  html:not([data-booted]) .desk .rise { animation-delay: calc(var(--d, 0s) + 2.3s); }
+  @media (min-width: 1024px) {
+    html:not([data-booted]) .desk .rise { animation-delay: calc(var(--d, 0s) + 3s); }
+  }
 }
 @keyframes boot-out { to { opacity: 0; visibility: hidden; } }
 @keyframes boot-bar { from { transform: scaleX(0); } }
-@keyframes boot-zoom { to { transform: scale(1.7); opacity: 0; } }
+@keyframes boot-drift {
+  0% { transform: scale(1.14) translateX(-1.5%); opacity: 0; }
+  12% { opacity: 1; }
+  80% { transform: scale(1.02) translateX(0); }
+  100% { transform: scale(1.25); }
+}
+@keyframes boot-zoom { to { transform: scale(1.8); opacity: 0; filter: blur(10px); } }
 @keyframes boot-pop { from { transform: scale(.82); opacity: 0; } }
 @keyframes boot-ring {
   0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 55%, transparent); }
@@ -215,6 +232,8 @@
   55% { opacity: 1; filter: blur(0); color: var(--accent); }
   100% { opacity: 1; transform: none; }
 }
+@keyframes boot-word { from { opacity: 0; transform: translateY(10px); filter: blur(4px); } }
+
 
 /* ── repo-sensei ────────────────────────────────────────────
    Base styles are the finished frame. The animations run from the empty state

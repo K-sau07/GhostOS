@@ -26,7 +26,7 @@ export default function Desktop() {
 
   // Once the boot has played, later windows should rise without waiting for it.
   useEffect(() => {
-    const t = setTimeout(() => { document.documentElement.dataset.booted = "1"; }, 2700);
+    const t = setTimeout(() => { document.documentElement.dataset.booted = "1"; }, 3600);
     return () => clearTimeout(t);
   }, []);
 
