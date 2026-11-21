@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useLive } from "@/lib/live-context";
 import { leetcodeUrl, GITHUB_USER, type Contributions } from "@/lib/live-types";
 import { QUOTES } from "@/lib/quotes";
-import gitlog from "@/lib/generated/gitlog.json";
 
 const ext = { target: "_blank", rel: "noreferrer" } as const;
 
@@ -201,31 +200,7 @@ export default function Activity() {
     <div className="@container space-y-4 px-5 py-7 @[640px]:px-8">
       <QuoteWidget size="lg" />
       <GitHubWidget />
-      <div className="grid grid-cols-[minmax(0,1fr)] gap-4 @[640px]:grid-cols-2">
-        <LeetCodeWidget />
-        <ThisSite />
-      </div>
+      <LeetCodeWidget />
     </div>
-  );
-}
-
-/* the last few commits to this site, read from git at build time */
-function ThisSite() {
-  const commits = (gitlog as { hash: string; date: string; subject: string }[]).slice(0, 5);
-  return (
-    <Card label="This site" right={<a href="https://github.com/K-sau07/GhostOS/commits/main" {...ext} className="link-u font-mono text-[11px] text-accent">history ↗</a>}>
-      {commits.length ? (
-        <ul className="mt-4 space-y-2.5">
-          {commits.map((c) => (
-            <li key={c.hash} className="grid grid-cols-[58px_1fr] gap-3 font-mono text-[11.5px]">
-              <span className="text-accent">{c.hash}</span>
-              <span className="truncate text-muted" title={c.subject}>{c.subject}</span>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="mt-3 text-[14px] text-muted">Built in the open on GitHub.</p>
-      )}
-    </Card>
   );
 }

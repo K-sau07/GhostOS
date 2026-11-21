@@ -3,13 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "predev": "node scripts/gitlog.mjs",
     "dev": "next dev",
-    "prebuild": "node scripts/gitlog.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "node scripts/gitlog.mjs && tsc --noEmit"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",

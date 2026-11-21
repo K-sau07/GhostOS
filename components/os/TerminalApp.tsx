@@ -7,7 +7,6 @@ import { launch, showSection } from "@/lib/actions";
 import { useLive } from "@/lib/live-context";
 import { leetcodeUrl, GITHUB_USER } from "@/lib/live-types";
 import { QUOTES } from "@/lib/quotes";
-import gitlog from "@/lib/generated/gitlog.json";
 
 type Line = { t: "in" | "out"; v: string };
 
@@ -22,7 +21,6 @@ const HELP: [string, string][] = [
   ["leetcode", "problems solved, live"],
   ["contributions", "GitHub, the last year"],
   ["quote", "today's quote"],
-  ["git log", "this site's latest commits"],
   ["open <name>", "about, experience, projects, live, shell, resume, ..."],
   ["mission", "Mission Control"],
   ["theme light|dark", "switch the theme"],
@@ -30,7 +28,7 @@ const HELP: [string, string][] = [
   ["clear", "clear the screen"],
 ];
 const COMMANDS = ["whoami", "neofetch", "ls", "cat", "sensei", "leetcode", "contributions", "quote",
-  "git", "open", "mission", "theme", "contact", "clear", "help", "date"];
+  "open", "mission", "theme", "contact", "clear", "help", "date"];
 
 const all = [...running, ...earlier];
 const find = (q: string) =>
@@ -50,7 +48,6 @@ const ARGS: Record<string, string[]> = {
   cat: all.map((p) => p.id),
   open: OPENABLE,
   theme: ["light", "dark"],
-  git: ["log"],
 };
 
 const commonPrefix = (xs: string[]) =>
@@ -143,13 +140,6 @@ export default function TerminalApp() {
         break;
       }
       case "date": out.push(new Date().toString()); break;
-      case "git":
-        if (arg === "log" || arg.startsWith("log")) {
-          const log = gitlog as { hash: string; date: string; subject: string }[];
-          if (!log.length) out.push("git: no history in this build");
-          log.slice(0, 10).forEach((c) => out.push(`${c.hash}  ${c.date}  ${c.subject}`));
-        } else out.push("git: only `git log` works here");
-        break;
       case "open": {
         const sec = SECTIONS.find((x) => x.id === arg || x.label.toLowerCase() === arg || (arg === "about" && x.id === "overview"));
         const id = (arg === "safari" ? "browser" : arg === "résumé" ? "resume" : arg.replace(".app", "")) as WinId;

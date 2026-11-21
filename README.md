@@ -25,7 +25,7 @@ Light and dark both follow the OS, with a toggle in the menu bar.
 | `Saurabh Kashyap` | About, shaped like System Settings: a sidebar with Overview, repo-sensei, Experience, Projects, Skills, Education, Activity and Contact |
 | `live.app` | a coverflow of the deployed projects |
 | `safari` | the live sites themselves, in tabs |
-| `shell` | `neofetch`, `ls`, `cat <project>`, `leetcode`, `contributions`, `quote`, `git log`, `open <name>`, `mission` |
+| `shell` | `neofetch`, `ls`, `cat <project>`, `leetcode`, `contributions`, `quote`, `open <name>`, `mission` |
 | `résumé.pdf` | the PDF, in a window |
 
 The desktop has a wallpaper, icons down the left, and live widgets down the right: the quote
