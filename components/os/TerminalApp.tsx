@@ -34,13 +34,12 @@ const all = [...running, ...earlier];
 const find = (q: string) =>
   all.find((p) => p.id === q || p.name.toLowerCase() === q || p.name.toLowerCase().replace(/\s+/g, "-") === q);
 
-const GHOST = [
-  "   .-'''-.   ",
-  "  /  o o  \\  ",
-  " |    ^    | ",
-  " |  \\___/  | ",
-  " |         | ",
-  " '.^.^.^.^.' ",
+const MARK = [
+  "  ____  _  __ ",
+  " / ___|| |/ / ",
+  " \\___ \\| ' /  ",
+  "  ___) | . \\  ",
+  " |____/|_|\\_\\ ",
 ];
 
 /** what each command's argument can complete to */
@@ -56,7 +55,7 @@ const commonPrefix = (xs: string[]) =>
 export default function TerminalApp() {
   const { setTheme, resolvedTheme } = useTheme();
   const live = useLive();
-  const [lines, setLines] = useState<Line[]>([{ t: "out", v: "ghost shell. type help to begin, tab completes." }]);
+  const [lines, setLines] = useState<Line[]>([{ t: "out", v: "saurabh shell. type help to begin, tab completes." }]);
   const [v, setV] = useState("");
   const [past, setPast] = useState<string[]>([]);
   const [back, setBack] = useState(-1);
@@ -83,20 +82,20 @@ export default function TerminalApp() {
       case "neofetch": {
         const up = Math.round(performance.now() / 60000);
         const info = [
-          "saurabh@ghost-os",
-          "----------------",
-          "OS       Ghost OS (Next.js 16, React 19)",
+          "saurabh@macbook",
+          "---------------",
+          "OS       SaurabhOS (Next.js 16, React 19)",
           `Host     ${window.location.host}`,
           `Uptime   ${up} min${up === 1 ? "" : "s"}`,
-          "Shell    ghost shell",
+          "Shell    saurabh shell",
           `Display  ${window.innerWidth}x${window.innerHeight}, ${resolvedTheme ?? "system"}`,
           `Stack    ${profile.stack}`,
           ...(lc ? [`LeetCode ${lc.solved} solved (${lc.easy} easy, ${lc.medium} medium, ${lc.hard} hard)`] : []),
           ...(gh ? [`GitHub   ${gh.total.toLocaleString("en-US")} contributions in the last year`] : []),
           `Now      ${profile.now.label}`,
         ];
-        for (let i = 0; i < Math.max(GHOST.length, info.length); i++)
-          out.push(`${(GHOST[i] ?? "").padEnd(16)}${info[i] ?? ""}`);
+        for (let i = 0; i < Math.max(MARK.length, info.length); i++)
+          out.push(`${(MARK[i] ?? "").padEnd(16)}${info[i] ?? ""}`);
         break;
       }
       case "ls":

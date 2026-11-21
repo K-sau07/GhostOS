@@ -23,7 +23,7 @@ import type { LiveData } from "@/lib/live-types";
  * windows float over the wallpaper; below 1024px the same windows stack into
  * one page.
  */
-export default function GhostOS({ live }: { live: LiveData }) {
+export default function SaurabhOS({ live }: { live: LiveData }) {
   return (
     <LiveProvider value={live}>
     <Motion>

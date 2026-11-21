@@ -1,4 +1,4 @@
-# Ghost OS
+# SaurabhOS
 
 My portfolio is an operating system in a browser tab.
 

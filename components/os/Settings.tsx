@@ -195,7 +195,7 @@ const WORDS: Record<SectionId, string> = {
   overview: "about profile saurabh boston",
   sensei: "repo sensei search codebase trace benchmark",
   experience: "work job history roles spring",
-  projects: "openlens tassist watchdog ghost ecoplate aura live demos",
+  projects: "openlens tassist watchdog saurabhos ecoplate aura live demos",
   skills: "stack java python aws tech",
   education: "northeastern degree certifications aws",
   activity: "github leetcode quote contributions",

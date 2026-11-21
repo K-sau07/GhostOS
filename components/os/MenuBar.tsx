@@ -45,7 +45,7 @@ export default function MenuBar() {
   const shown = (Object.keys(wins) as WinId[]).filter((id) => wins[id].open);
 
   const MENUS: Record<string, MenuItem[]> = {
-    "Ghost OS": [
+    "SaurabhOS": [
       { label: "About Saurabh", onSelect: () => showSection("overview") },
       { label: "repo-sensei", onSelect: () => showSection("sensei") },
       { label: "Experience", onSelect: () => showSection("experience") },
@@ -93,10 +93,10 @@ export default function MenuBar() {
       onClick={(e) => e.stopPropagation()}
     >
       <MenuBarMenu
-        label={<span className="font-serif text-[14.5px] text-fg">Ghost OS</span>}
-        items={MENUS["Ghost OS"]}
-        open={openMenu === "Ghost OS"}
-        setOpen={(v) => setOpenMenu(v ? "Ghost OS" : null)}
+        label={<span className="font-serif text-[14.5px] text-fg">SaurabhOS</span>}
+        items={MENUS["SaurabhOS"]}
+        open={openMenu === "SaurabhOS"}
+        setOpen={(v) => setOpenMenu(v ? "SaurabhOS" : null)}
       />
       <span className="px-2.5 font-mono text-[11.5px] text-fg">{top ? WINDOWS[top].title : "desktop"}</span>
       {["File", "View", "Window", "Help"].map((name) => (

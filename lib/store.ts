@@ -88,7 +88,7 @@ export const useOS = create<OS>((set) => ({
   mission: false,
   snap: null,
   section: "overview",
-  page: "openlens",
+  page: "sensei",
 
   open: (id) =>
     set((s) => ({

@@ -1,10 +1,11 @@
 "use client";
 import { useOS } from "@/lib/store";
-import { running, napNote } from "@/lib/content";
+import { liveSites as running, napNote } from "@/lib/content";
 
 const SHOTS: Record<string, string> = {
-  openlens: "/shots/openlens.png", tassist: "/shots/tassist.png", watchdog: "/shots/watchdog.png",
-  ecoplate: "/shots/ecoplate.png", aura: "/shots/sentiment-aura.png",
+  sensei: "/shots/repo-sensei.webp",
+  openlens: "/shots/openlens.webp", tassist: "/shots/tassist.webp", watchdog: "/shots/watchdog.webp",
+  ecoplate: "/shots/ecoplate.webp", aura: "/shots/sentiment-aura.webp",
 };
 
 /** A browser window that loads the project's real site. A captured snapshot
@@ -40,12 +41,20 @@ export default function SafariApp() {
       </div>
       {/* page */}
       <div className="relative min-h-0 flex-1 bg-panel">
-        {SHOTS[p.id] && (
+        {open && SHOTS[p.id] && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={SHOTS[p.id]} alt="" className="absolute inset-0 h-full w-full object-cover object-top opacity-40" />
+          <img src={SHOTS[p.id]} alt="" className={`absolute inset-0 h-full w-full object-cover object-top ${p.frameable ? "opacity-40" : ""}`} />
         )}
-        <div className="absolute inset-x-0 bottom-3 z-0 text-center font-mono text-[11px] text-muted">{napNote}</div>
-        {open && (
+        {p.frameable && <div className="absolute inset-x-0 bottom-3 z-0 text-center font-mono text-[11px] text-muted">{napNote}</div>}
+        {!p.frameable && (
+          <div className="absolute inset-x-0 bottom-10 z-10 flex justify-center">
+            <a href={p.live} target="_blank" rel="noreferrer"
+               className="rounded-full border border-line bg-bg px-4 py-2 text-[13px] shadow-[var(--shadow)] transition-colors hover:border-accent/60">
+              {p.name} keeps itself out of frames, for security. <span className="text-accent">Open it ↗</span>
+            </a>
+          </div>
+        )}
+        {open && p.frameable && (
           <iframe key={p.id} src={p.live} title={`${p.name}, live`}
                   sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
                   className="relative z-10 h-full w-full border-0" />

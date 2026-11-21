@@ -13,7 +13,7 @@ export default function MobileBar() {
   return (
     <>
       <div className="flex h-12 items-center justify-between px-5 lg:hidden">
-        <span className="font-serif text-[16px]">Ghost OS</span>
+        <span className="font-serif text-[16px]">SaurabhOS</span>
         <ThemeToggle />
       </div>
       <nav aria-label="Sections"

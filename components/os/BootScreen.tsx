@@ -10,7 +10,7 @@ export default function BootScreen() {
       <div className="boot-card flex flex-col items-center px-6 text-center">
         <div className="boot-hello label">Welcome to Saurabh&apos;s MacBook</div>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/avatar.webp" alt="" width={112} height={112}
+        <img src="/avatar.webp" alt="" width={112} height={112} fetchPriority="high"
              className="boot-pic mt-7 h-[96px] w-[96px] rounded-full border border-line object-cover lg:h-[112px] lg:w-[112px]" />
         <div className="mt-6 font-serif text-[clamp(36px,10vw,56px)] leading-none">
           {profile.name.split("").map((ch, i) => (

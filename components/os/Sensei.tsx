@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useId, useRef, useState } from "react";
 import { sensei } from "@/lib/content";
+import SenseiShowcase from "./SenseiShowcase";
 
 const layerColor = (l: string) => `var(--l-${l})`;
 const ext = { target: "_blank", rel: "noreferrer" } as const;
@@ -176,8 +177,8 @@ export default function Sensei() {
 
       <div className="relative space-y-4 px-6 pb-9 pt-4 text-[15px] leading-[1.7] @[640px]:px-10">
         <p className="max-w-[64ch] text-muted"><Origin text={sensei.origin[0]} /> {sensei.origin[1]}</p>
-        <p className="max-w-[64ch] text-muted">{sensei.bench}</p>
-        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-1 text-[14.5px]">
+        <div className="pt-8"><SenseiShowcase /></div>
+        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-8 text-[14.5px]">
           {sensei.links.map((l, i) => (
             <span key={l.label} className="flex items-center gap-3">
               <a href={l.href} {...ext} className={`link-u ${i === 0 ? "font-medium text-accent" : "text-fg"}`}>

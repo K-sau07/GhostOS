@@ -66,6 +66,33 @@ export const sensei = {
   bench:
     "I hold it to a benchmark I built and published. 0.95 hop recall on the repo I tuned it on, " +
     "0.23 to 0.33 on repos it has never seen. The second number is the one I'm working on.",
+  /** what it does, in the product's own words (reposensei.com and the README) */
+  features: [
+    { id: "ask", name: "Ask", line: "Questions about the code, answered from the code. Each claim is checked against the lines it cites, and an answer it can't stand behind says so." },
+    { id: "trace", name: "Trace", line: "Follow a feature from the button to the database: UI, API, services and storage, hop by hop, across languages." },
+    { id: "diagrams", name: "Diagrams", line: "Drawn from the code's graph, each edge checked, and marked when it no longer matches." },
+    { id: "impact", name: "Dependencies and impact", line: "Modules, packages and cycles, and what a change to a symbol reaches before you make it." },
+    { id: "branches", name: "Branches and pull requests", line: "Read any tracked branch. Answers say when what they cited has changed since." },
+    { id: "mcp", name: "MCP, CLI and API", line: "The same index from Claude Code, Cursor or VS Code, signed in once with OAuth or an API key." },
+    { id: "fix", name: "Fix and change", line: "From a stack trace or an issue: reproduced by a failing test, planned for your approval, patched in a sandbox and verified by your tests." },
+  ],
+  promises: ["Cites file and line", "Says when it can't tell", "Fixes start from a failing test", "Fresh on every push"],
+  safety: [
+    "Each organization's data is kept apart in the database itself, with forced row-level security, and tests prove it.",
+    "A repository's text is data, never instructions. Agent tools can't leave the checkout or reach the web.",
+    "Untrusted code runs in gVisor on a separate host, with no network and hard time and memory limits.",
+    "Nothing changes without a person approving the plan; risky plans need two. Fixes ship as pull requests.",
+    "Spend is capped per person, per org and globally.",
+  ],
+  stack: ["FastAPI", "Postgres + pgvector + BM25", "Celery + Redis", "tree-sitter", "Next.js", "Docker + gVisor", "MCP"],
+  /** CrossLayerBench v1, hop recall, from reposensei.com/benchmarks */
+  results: [
+    { repo: "fastapi-template", recall: 0.95, tuned: true },
+    { repo: "langflow", recall: 0.70, tuned: true },
+    { repo: "umami", recall: 0.33, tuned: false },
+    { repo: "jhipster-react", recall: 0.28, tuned: false },
+    { repo: "redash", recall: 0.23, tuned: false },
+  ],
   links: [
     { label: "Try it", href: "https://reposensei.com" },
     { label: "Source", href: "https://github.com/K-sau07/repo-sensei" },
@@ -108,7 +135,7 @@ export const running: Running[] = [
     live: "https://watchdog-sand.vercel.app", repo: "https://github.com/K-sau07/Watchdog",
   },
   {
-    id: "ghostos", label: "Interfaces", name: "Ghost OS",
+    id: "ghostos", label: "Interfaces", name: "SaurabhOS",
     line: "My portfolio, as an operating system. Windows, dock, Spotlight, a real shell. No UI kit.",
     stack: "Next.js · TypeScript · Framer Motion",
     live: "https://ghost-os-pied.vercel.app", repo: "https://github.com/K-sau07/GhostOS",
@@ -221,4 +248,14 @@ export const certifications = [
   "AWS Certified Solutions Architect",
   "Spring Professional",
   "Claude Certified Architect",
+];
+
+/** every deployed site, repo-sensei first; live.app and the browser window read this */
+export const liveSites = [
+  {
+    id: "sensei", label: "Now", name: "repo-sensei", line: sensei.pitch,
+    stack: sensei.stack.slice(0, 4).join(" · "), live: sensei.href,
+    repo: "https://github.com/K-sau07/repo-sensei", frameable: false,
+  },
+  ...running.map((p) => ({ ...p, frameable: true })),
 ];

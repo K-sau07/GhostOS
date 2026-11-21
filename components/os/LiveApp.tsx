@@ -1,15 +1,16 @@
 "use client";
 import { useState } from "react";
 import { m } from "framer-motion";
-import { running } from "@/lib/content";
+import { liveSites as running } from "@/lib/content";
 import { browse } from "@/lib/actions";
 import MotifArt from "./Motifs";
 
 const ext = { target: "_blank", rel: "noreferrer" } as const;
-/** captured homepages; Ghost OS is this site, so it gets its motif instead */
+/** captured homepages; SaurabhOS is this site, so it gets its motif instead */
 const SHOTS: Record<string, string> = {
-  openlens: "/shots/openlens.png", tassist: "/shots/tassist.png", watchdog: "/shots/watchdog.png",
-  ecoplate: "/shots/ecoplate.png", aura: "/shots/sentiment-aura.png",
+  sensei: "/shots/repo-sensei.webp",
+  openlens: "/shots/openlens.webp", tassist: "/shots/tassist.webp", watchdog: "/shots/watchdog.webp",
+  ecoplate: "/shots/ecoplate.webp", aura: "/shots/sentiment-aura.webp",
 };
 
 /* A coverflow of the deployed projects. The centre card is square-on; its
@@ -59,7 +60,7 @@ export default function LiveApp() {
                 <div className="flex h-full flex-col justify-center px-6 text-left">
                   <div className="label">{c.label}</div>
                   <div className="mt-2 font-serif text-[26px]">{c.name}</div>
-                  <MotifArt id={c.id} />
+                  <MotifArt id="ghostos" />
                   <div className="font-mono text-[11px] text-muted">you&apos;re looking at it</div>
                 </div>
               )}
