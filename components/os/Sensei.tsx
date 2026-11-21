@@ -44,7 +44,7 @@ export default function Sensei() {
         !document.documentElement.dataset.booted &&
         window.matchMedia("(min-width: 1024px) and (prefers-reduced-motion: no-preference)").matches;
       t = setTimeout(() => { el.dataset.play = ""; }, booting ? 1700 : 150);
-    }, { threshold: 0.35 });
+    }, { threshold: 0, rootMargin: "0px 0px -25% 0px" }); // the section is taller than the screen, so watch its top edge
     io.observe(el);
     return () => { io.disconnect(); clearTimeout(t); };
   }, []);
