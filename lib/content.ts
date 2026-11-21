@@ -5,6 +5,8 @@
    published somewhere I can point to. The current employer is named only in
    Experience (and on the résumé), never in the headline copy. */
 
+import { SITE_URL } from "./site";
+
 export const profile = {
   name: "Saurabh Kashyap",
   role: "Software Engineer",
@@ -141,7 +143,7 @@ export const running: Running[] = [
     id: "ghostos", label: "Interfaces", name: "SaurabhOS",
     line: "My portfolio, as an operating system. Windows, dock, Spotlight, a real shell. No UI kit.",
     stack: "Next.js · TypeScript · Framer Motion",
-    live: "https://ghost-os-pied.vercel.app", repo: "https://github.com/K-sau07/GhostOS",
+    live: SITE_URL, repo: "https://github.com/K-sau07/GhostOS",
   },
   {
     id: "ecoplate", label: "Marketplace", name: "Ecoplate",
