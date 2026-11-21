@@ -2,13 +2,14 @@
 
    Sources: ~/Documents/SaurabhBrain/Me/about.md, the GitHub profile README
    (github.com/K-sau07) and each project's repo. No number appears here that isn't
-   published somewhere I can point to. The current employer is never named. */
+   published somewhere I can point to. The current employer is named only in
+   Experience (and on the résumé), never in the headline copy. */
 
 export const profile = {
   name: "Saurabh Kashyap",
   role: "Software Engineer",
   city: "Boston",
-  line: "I build backends, and the tools that help people understand them.",
+  line: "I build software, and the tools that help people understand it.",
   facts: ["3+ years building software", "M.S. Northeastern University"],
   now: { label: "reposensei.com", href: "https://reposensei.com" },
   email: "saurabh.k@itjobinbox.com",
@@ -165,7 +166,6 @@ export const earlier: Earlier[] = [
 
 export interface Role {
   title: string;
-  /** the current employer is described, never named */
   org: string;
   where: string;
   when: string;
@@ -176,7 +176,7 @@ export interface Role {
 export const experience: Role[] = [
   {
     title: "Software Engineer",
-    org: "Enterprise workflow platform",
+    org: "ServiceNow",
     where: "Massachusetts",
     when: "Feb 2026 to now",
     bullets: [

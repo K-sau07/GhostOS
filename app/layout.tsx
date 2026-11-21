@@ -7,8 +7,8 @@ import "./globals.css";
 
 const TITLE = "Saurabh Kashyap · Software Engineer";
 const DESCRIPTION =
-  "Software engineer in Boston. I build backends, and the tools that help people " +
-  "understand them, like repo-sensei, a search engine for your whole codebase.";
+  "Software engineer in Boston. I build software, and the tools that help people " +
+  "understand it, like repo-sensei, a search engine for your whole codebase.";
 
 export const metadata: Metadata = {
   // Unfurlers (LinkedIn, Slack, iMessage) need absolute image URLs.
