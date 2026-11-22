@@ -162,11 +162,21 @@
     --x: calc((100vw - var(--w)) / 2 + 60px); --y: 44px;
   }
 
+  /* all three widgets always show; on a short screen the column scrolls, quietly */
   .desk-widgets {
     position: absolute; right: 18px; top: 44px; width: var(--widgets);
+    max-height: calc(100vh - 44px - var(--dock-room));
+    overflow-y: auto; scrollbar-width: none; overscroll-behavior: contain;
     display: flex; flex-direction: column; gap: 12px;
   }
-  @media (max-height: 839px) { .desk-widgets .w-leetcode { display: none; } }
+  .desk-widgets::-webkit-scrollbar { display: none; }
+  /* tighter on shorter screens so the three still fit without scrolling */
+  @media (max-height: 819px) {
+    .desk-widgets { gap: 10px; }
+    .desk-widgets > div > section { padding: 14px 16px; }
+    .desk-widgets blockquote { margin-top: 10px; font-size: 15px; }
+    .desk-widgets blockquote p { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  }
   @media (max-width: 1199.98px) {
     .desk { --widgets: 0px; }
     .desk-widgets { display: none; }
