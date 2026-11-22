@@ -2,7 +2,7 @@
 
 My portfolio is an operating system in a browser tab.
 
-### → **[saurabhkashyap.me](https://saurabhkashyap.me)**
+### → **[saurabhkashyap.me](https://www.saurabhkashyap.me)**
 
 Next.js 16, React 19, TypeScript, Tailwind 4, Framer Motion.
 
