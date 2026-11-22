@@ -22,13 +22,13 @@ export const metadata: Metadata = {
     url: "/",
     siteName: profile.name,
     type: "profile",
-    images: [{ url: "/og.png", width: 1200, height: 630, alt: "Saurabh Kashyap, software engineer in Boston" }],
+    images: [{ url: "/og.png?v=2", width: 1200, height: 630, alt: "Saurabh Kashyap, software engineer in Boston" }],
   },
   twitter: {
     card: "summary_large_image",
     title: TITLE,
     description: DESCRIPTION,
-    images: ["/og.png"],
+    images: ["/og.png?v=2"],
   },
 };
 
